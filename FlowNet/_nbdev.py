@@ -3,6 +3,12 @@
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"SmallRandom": "01a01a Small Random Directed Graphs.ipynb",
+         "xy_tilt": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
+         "add_noise": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
+         "directed_circle": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
+         "directed_spiral": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
+         "directed_spiral_uniform": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
+         "directed_spiral_sklearn": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
          "plot_directed_2d": "01c Plotting Utils.ipynb",
          "plot_origin_3d": "01c Plotting Utils.ipynb",
          "plot_directed_3d": "01c Plotting Utils.ipynb",
