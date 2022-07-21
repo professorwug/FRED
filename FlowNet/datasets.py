@@ -4,41 +4,44 @@ __all__ = ['plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d']
 
 # Cell
 import matplotlib.pyplot as plt
-def plot_directed_2d(X, flows, labels, mask_prob=0.5, cmap="viridis"):
+def plot_directed_2d(X, flows, labels, mask_prob=0.5):
   num_nodes = X.shape[0]
   fig = plt.figure()
   ax = fig.add_subplot()
-  ax.scatter(X[:,0], X[:,1], marker=".", c=labels, cmap=cmap)
+  ax.scatter(X[:,0], X[:,1], marker=".", c=labels)
   mask = np.random.rand(num_nodes) > mask_prob
   ax.quiver(X[mask,0], X[mask,1], flows[mask,0], flows[mask,1], alpha=0.1)
   ax.set_aspect("equal")
   plt.show()
 
 # Cell
-def plot_origin_3d(ax, xlim, ylim, zlim):
-  ax.plot(xlim,[0,0],[0,0], color="k", alpha=0.5)
-  ax.plot([0,0],ylim,[0,0], color="k", alpha=0.5)
-  ax.plot([0,0],[0,0],zlim, color="k", alpha=0.5)
+def plot_origin_3d(ax, lim):
+  ax.plot(lim,[0,0],[0,0], color="k", alpha=0.5)
+  ax.plot([0,0],lim,[0,0], color="k", alpha=0.5)
+  ax.plot([0,0],[0,0],lim, color="k", alpha=0.5)
 
-def plot_directed_3d(X, flow, labels, mask_prob=0.5, cmap="virdis", origin=False):
+def plot_directed_3d(X, flows, labels, mask_prob=0.5):
   num_nodes = X.shape[0]
+  colors = plt.cm.viridis(labels/(2*np.pi))
   mask = np.random.rand(num_nodes) > mask_prob
   fig = plt.figure()
-  ax = fig.add_subplot(projection="3d")
-  if origin:
-    plot_origin_3d(ax, xlim=[X[:,0].min(),X[:,0].max()], ylim=[X[:,1].min(),X[:,1].max()], zlim=[X[:,2].min(),X[:,2].max()])
-  ax.scatter(X[:,0], X[:,1], X[:,2], marker=".", c=labels, cmap=cmap)
-  ax.quiver(X[mask,0], X[mask,1], X[mask,2], flow[mask,0], flow[mask,1], flow[mask,2], alpha=0.1, length=0.5)
+  ax = fig.add_subplot(projection='3d')
+  plot_origin_3d(ax, lim=[-1,1])
+  ax.scatter(X[:,0], X[:,1], X[:,2], marker=".", c=labels)
+  ax.quiver(X[mask,0], X[mask,1], X[mask,2], flows[mask,0], flows[mask,1], flows[mask,2], alpha=0.1, length=0.5)
   plt.show()
 
 # Cell
 # For plotting 2D and 3D graphs
+import plotly
+import plotly.graph_objs as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
-def plot_3d(X,distribution=None, title="",lim=None,use_plotly=False,colorbar = False, cmap="plasma"):
+def plot_3d(X,distribution=None, title="",lim=None,use_plotly=False,colorbar = False, cmap="viridis"):
     if distribution is None:
         distribution = np.zeros(len(X))
     if lim is None:
