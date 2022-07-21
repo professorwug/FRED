@@ -2,9 +2,12 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {}
+index = {"plot_directed_2d": "01c Plotting Utils.ipynb",
+         "plot_origin_3d": "01c Plotting Utils.ipynb",
+         "plot_directed_3d": "01c Plotting Utils.ipynb",
+         "plot_3d": "01c Plotting Utils.ipynb"}
 
-modules = []
+modules = ["datasets.py"]
 
 doc_url = "https://x.riddle.press/FlowNet/"
 
