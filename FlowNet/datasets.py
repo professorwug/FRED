@@ -2,8 +2,9 @@
 
 __all__ = ['SmallRandom', 'xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'directed_spiral_uniform',
            'directed_spiral_sklearn', 'generate_prism', 'directed_cylinder', 'directed_swiss_roll',
-           'directed_spiral_uniform', 'directed_spiral_sklearn', 'plot_directed_2d', 'plot_origin_3d',
-           'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
+           'directed_spiral_uniform', 'directed_spiral_sklearn', 'pancreas_rnavelo_load_data', 'add_labels_pancreas', 
+           'pancreas_rnavelo', 'pancreas_rnavelo_50pcs', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d',
+           'visualize_graph', 'visualize_heatmap']
 
 # Cell
 import warnings
@@ -215,6 +216,61 @@ def directed_spiral_sklearn(num_nodes=500, num_spirals=1.5, inwards=False, radiu
     # tilt and add noise
     X, flows = xy_tilt(X, flows, xtilt, ytilt)
     X = add_noise(X, sigma)
+    return X, flows, labels
+
+# Cell
+
+import scvelo as scv
+import numpy as np
+import torch
+import scipy
+
+def pancreas_rnavelo_load_data():
+    # load data
+    adata = scv.datasets.pancreas()
+
+    #preprocess data and calculate rna velocity
+    scv.pp.filter_and_normalize(adata)
+    scv.pp.moments(adata)
+    scv.tl.velocity(adata, mode='stochastic')
+
+    return adata
+
+def add_labels_pancreas(clusters):
+    cluster_set = set(clusters)
+    d = {}
+    count = 0
+    for c in cluster_set:
+        d[c] = count
+        count +=1
+    labels = []
+    for i in range(len(clusters)):
+        labels.append(d[clusters[i]])
+
+    return labels
+
+def pancreas_rnavelo():
+    # load preprocessed data
+    adata = pancreas_rnavelo_load_data()
+
+    # set datapoints (X) and flows
+    X = torch.tensor(adata.X.todense())
+    flows = torch.tensor(adata.layers["velocity"])
+    labels = add_labels_pancreas(adata.obs["clusters"])
+
+    return X, flows, labels
+
+def pancreas_rnavelo_50pcs():
+    adata = pancreas_rnavelo_load_data()
+
+    # calculate velocity pca (50 dimensions) and display pca plot (2 dimensions)
+    scv.tl.velocity_graph(adata)
+    scv.pl.velocity_embedding_stream(adata, basis='pca')
+
+    X = torch.tensor(adata.obsm["X_pca"])
+    flows = torch.tensor(adata.obsm["velocity_pca"])
+    labels = add_labels_pancreas(adata.obs["clusters"])
+
     return X, flows, labels
 
 # Cell
