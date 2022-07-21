@@ -2,10 +2,13 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"plot_directed_2d": "01c Plotting Utils.ipynb",
+index = {"SmallRandom": "01a01a Small Random Directed Graphs.ipynb",
+         "plot_directed_2d": "01c Plotting Utils.ipynb",
          "plot_origin_3d": "01c Plotting Utils.ipynb",
          "plot_directed_3d": "01c Plotting Utils.ipynb",
-         "plot_3d": "01c Plotting Utils.ipynb"}
+         "plot_3d": "01c Plotting Utils.ipynb",
+         "visualize_graph": "01c Plotting Utils.ipynb",
+         "visualize_heatmap": "01c Plotting Utils.ipynb"}
 
 modules = ["datasets.py"]
 
