@@ -4,9 +4,10 @@ __all__ = ['EmailEuNetwork', 'SourceSink', 'SmallRandom', 'DirectedStochasticBlo
            'ChainGraph', 'ChainGraph2', 'ChainGraph3', 'CycleGraph', 'HalfCycleGraph', 'xy_tilt', 'add_noise',
            'directed_circle', 'directed_spiral', 'directed_spiral_uniform', 'directed_spiral_sklearn', 'generate_prism',
            'directed_cylinder', 'directed_swiss_roll', 'directed_swiss_roll_uniform', 'directed_swiss_roll_sklearn',
-           'directed_one_variable_function', 'directed_sinh_branch', 'directed_sin', 'directed_sin_ribbon',
-           'pancreas_rnavelo_load_data', 'add_labels_pancreas', 'pancreas_rnavelo', 'pancreas_rnavelo_50pcs',
-           'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
+           'directed_one_variable_function', 'directed_sinh_branch', 'directed_sin', 'directed_sin_ribbon', 'angle_x',
+           'whirlpool', 'rejection_sample_for_torus', 'torus_with_flow', 'pancreas_rnavelo_load_data',
+           'add_labels_pancreas', 'pancreas_rnavelo', 'pancreas_rnavelo_50pcs', 'plot_directed_2d', 'plot_origin_3d',
+           'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
 
 # Cell
 import os
@@ -639,6 +640,90 @@ def directed_sin_ribbon(num_nodes=1000, xscale=1, yscale=1, xlow=-2*np.pi, xhigh
     return X, flows, labels
 
 # Cell
+def angle_x(X):
+    """Returns angle in [0, 2pi] corresponding to each point X"""
+    X_complex = X[:,0] + np.array([1j])*X[:,1]
+    return np.angle(X_complex)
+
+# Cell
+def whirlpool(X):
+    """Generates a whirlpool for flow assignment. Works in both 2d and 3d space.
+
+    Parameters
+    ----------
+    X : ndarray
+        input data, 2d or 3d
+    """
+    # convert X into angles theta, where 0,0 is 0, and 0,1 is pi/2
+    X_angles = angle_x(X)
+    # create flows
+    flow_x = np.sin(2*np.pi - X_angles)
+    flow_y = np.cos(2*np.pi - X_angles)
+    output = np.column_stack([flow_x,flow_y])
+    if X.shape[1] == 3:
+        # data is 3d
+        flow_z = np.zeros(X.shape[0])
+        output = np.column_stack([output,flow_z])
+    return output
+
+# Cell
+def rejection_sample_for_torus(n, r, R):
+    # Rejection sampling torus method [Sampling from a torus (Revolutions)](https://blog.revolutionanalytics.com/2014/02/sampling-from-a-torus.html)
+    xvec = np.random.random(n) * 2 * np.pi
+    yvec = np.random.random(n) * (1/np.pi)
+    fx = (1 + (r/R)*np.cos(xvec)) / (2*np.pi)
+    return xvec[yvec < fx]
+
+def torus_with_flow(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=None, use_guide_points = False):
+    """
+    Sample `n` data points on a torus. Modified from [tadasets.shapes — TaDAsets 0.1.0 documentation](https://tadasets.scikit-tda.org/en/latest/_modules/tadasets/shapes.html#torus)
+    Uses rejection sampling.
+
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    n : int
+        Number of data points in shape.
+    c : float
+        Distance from center to center of tube.
+    a : float
+        Radius of tube.
+    flow_type, in ['whirlpool']
+
+    ambient : int, default=None
+        Embed the torus into a space with ambient dimension equal to `ambient`. The torus is randomly rotated in this high dimensional space.
+    seed : int, default=None
+        Seed for random state.
+    """
+
+    assert a <= c, "That's not a torus"
+
+    np.random.seed(seed)
+    theta = rejection_sample_for_torus(n-2, a, c)
+    phi = np.random.random((len(theta))) * 2.0 * np.pi
+
+    data = np.zeros((len(theta), 3))
+    data[:, 0] = (c + a * np.cos(theta)) * np.cos(phi)
+    data[:, 1] = (c + a * np.cos(theta)) * np.sin(phi)
+    data[:, 2] = a * np.sin(theta)
+
+    if use_guide_points:
+        data = np.vstack([[[0,-c-a,0],[0,c-a,0],[0,c,a]],data])
+
+    if noise:
+        data += noise * np.random.randn(*data.shape)
+
+    if flow_type == 'whirlpool':
+        flows = whirlpool(data)
+    else:
+        raise NotImplementedError
+    # compute curvature of sampled torus
+    ks = 8*np.cos(theta)/(5 + np.cos(theta))
+
+    return data, flows
+
+# Cell
 
 import scvelo as scv
 import numpy as np
@@ -688,13 +773,14 @@ def pancreas_rnavelo_50pcs():
 import matplotlib.pyplot as plt
 
 
-def plot_directed_2d(X, flows, labels, mask_prob=0.5, cmap="viridis"):
+def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis"):
     num_nodes = X.shape[0]
+    alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     fig = plt.figure()
     ax = fig.add_subplot()
-    ax.scatter(X[:, 0], X[:, 1], marker=".", c=labels, cmap=cmap)
+    ax.scatter(X[:, 0], X[:, 1], marker=".", c=labels, cmap=cmap, alpha=alpha_points)
     mask = np.random.rand(num_nodes) > mask_prob
-    ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=0.1)
+    ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=alpha_arrows)
     ax.set_aspect("equal")
     plt.show()
 
@@ -706,8 +792,9 @@ def plot_origin_3d(ax, xlim, ylim, zlim):
     ax.plot([0, 0], [0, 0], zlim, color="k", alpha=0.5)
 
 
-def plot_directed_3d(X, flow, labels, mask_prob=0.5, cmap="viridis", origin=False):
+def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False):
     num_nodes = X.shape[0]
+    alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     mask = np.random.rand(num_nodes) > mask_prob
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
@@ -718,7 +805,7 @@ def plot_directed_3d(X, flow, labels, mask_prob=0.5, cmap="viridis", origin=Fals
             ylim=[X[:, 1].min(), X[:, 1].max()],
             zlim=[X[:, 2].min(), X[:, 2].max()],
         )
-    ax.scatter(X[:, 0], X[:, 1], X[:, 2], marker=".", c=labels, cmap=cmap)
+    ax.scatter(X[:, 0], X[:, 1], X[:, 2], marker=".", c=labels, cmap=cmap, alpha=alpha_points)
     ax.quiver(
         X[mask, 0],
         X[mask, 1],
@@ -726,7 +813,7 @@ def plot_directed_3d(X, flow, labels, mask_prob=0.5, cmap="viridis", origin=Fals
         flow[mask, 0],
         flow[mask, 1],
         flow[mask, 2],
-        alpha=0.1,
+        alpha=alpha_arrows,
         length=0.5,
     )
     plt.show()
