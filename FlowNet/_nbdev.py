@@ -2,7 +2,17 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"SmallRandom": "01a01a Small Random Directed Graphs.ipynb",
+index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
+         "SourceSink": "01a01a Communities Datasets.ipynb",
+         "SmallRandom": "01a01b Small Random Directed Graphs.ipynb",
+         "DirectedStochasticBlockModel": "01a01c Directed Stochastic Block Model.ipynb",
+         "source_graph": "01a01c Directed Stochastic Block Model.ipynb",
+         "sink_graph": "01a01c Directed Stochastic Block Model.ipynb",
+         "ChainGraph": "01a01c Directed Stochastic Block Model.ipynb",
+         "ChainGraph2": "01a01c Directed Stochastic Block Model.ipynb",
+         "ChainGraph3": "01a01c Directed Stochastic Block Model.ipynb",
+         "CycleGraph": "01a01c Directed Stochastic Block Model.ipynb",
+         "HalfCycleGraph": "01a01c Directed Stochastic Block Model.ipynb",
          "xy_tilt": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
          "add_noise": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
          "directed_circle": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
@@ -25,11 +35,20 @@ index = {"SmallRandom": "01a01a Small Random Directed Graphs.ipynb",
          "plot_directed_2d": "01c Plotting Utils.ipynb",
          "plot_origin_3d": "01c Plotting Utils.ipynb",
          "plot_directed_3d": "01c Plotting Utils.ipynb",
-         "plot_3d": "01c Plotting Utils.ipynb",
+         "plot_3d": "02b Diffusion Maps and Distances.ipynb",
          "visualize_graph": "01c Plotting Utils.ipynb",
          "visualize_heatmap": "01c Plotting Utils.ipynb",
          "affinity_from_flow": "02a Flashlight Kernel.ipynb",
-         "affinity_matrix_from_pointset_to_pointset": "02a Flashlight Kernel.ipynb"}
+         "affinity_matrix_from_pointset_to_pointset": "02a Flashlight Kernel.ipynb",
+         "make_sparse_safe": "02b Diffusion Maps and Distances.ipynb",
+         "distance_matrix": "02b Diffusion Maps and Distances.ipynb",
+         "anisotropic_kernel": "02b Diffusion Maps and Distances.ipynb",
+         "adaptive_anisotropic_kernel": "02b Diffusion Maps and Distances.ipynb",
+         "diffusion_matrix": "02b Diffusion Maps and Distances.ipynb",
+         "diffusion_matrix_from_points": "02b Diffusion Maps and Distances.ipynb",
+         "diffusion_coordinates": "02b Diffusion Maps and Distances.ipynb",
+         "diffusion_map_from_points": "02b Diffusion Maps and Distances.ipynb",
+         "diffusion_map_from_affinities": "02b Diffusion Maps and Distances.ipynb"}
 
 modules = ["datasets.py",
            "data_processing.py"]
