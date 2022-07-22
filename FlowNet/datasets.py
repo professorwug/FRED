@@ -4,8 +4,9 @@ __all__ = ['EmailEuNetwork', 'SourceSink', 'SmallRandom', 'DirectedStochasticBlo
            'ChainGraph', 'ChainGraph2', 'ChainGraph3', 'CycleGraph', 'HalfCycleGraph', 'xy_tilt', 'add_noise',
            'directed_circle', 'directed_spiral', 'directed_spiral_uniform', 'directed_spiral_sklearn', 'generate_prism',
            'directed_cylinder', 'directed_swiss_roll', 'directed_swiss_roll_uniform', 'directed_swiss_roll_sklearn',
-           'pancreas_rnavelo_load_data', 'add_labels_pancreas', 'pancreas_rnavelo', 'pancreas_rnavelo_50pcs',
-           'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
+           'add_labels', 'pancreas_rnavelo_load_data', 'pancreas_rnavelo', 'pancreas_rnavelo_pcs',
+           'd_rnavelo_load_data', 'd_rnavelo', 'd_rnavelo_pcs', 'plot_directed_2d', 'plot_origin_3d',
+           'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
 
 # Cell
 import os
@@ -568,18 +569,7 @@ import numpy as np
 import torch
 import scipy
 
-def pancreas_rnavelo_load_data():
-    # load data
-    adata = scv.datasets.pancreas()
-
-    #preprocess data and calculate rna velocity
-    scv.pp.filter_and_normalize(adata)
-    scv.pp.moments(adata)
-    scv.tl.velocity(adata, mode='stochastic')
-
-    return adata
-
-def add_labels_pancreas(clusters):
+def add_labels(clusters):
     cluster_set = set(clusters)
     d = {}
     count = 0
@@ -592,6 +582,17 @@ def add_labels_pancreas(clusters):
 
     return labels
 
+def pancreas_rnavelo_load_data():
+    # load data
+    adata = scv.datasets.pancreas()
+
+    #preprocess data and calculate rna velocity
+    scv.pp.filter_and_normalize(adata)
+    scv.pp.moments(adata)
+    scv.tl.velocity(adata, mode='stochastic')
+
+    return adata
+
 def pancreas_rnavelo():
     # load preprocessed data
     adata = pancreas_rnavelo_load_data()
@@ -599,11 +600,11 @@ def pancreas_rnavelo():
     # set datapoints (X) and flows
     X = torch.tensor(adata.X.todense())
     flows = torch.tensor(adata.layers["velocity"])
-    labels = add_labels_pancreas(adata.obs["clusters"])
+    labels = add_labels(adata.obs["clusters"])
 
     return X, flows, labels
 
-def pancreas_rnavelo_50pcs():
+def pancreas_rnavelo_pcs():
     adata = pancreas_rnavelo_load_data()
 
     # calculate velocity pca (50 dimensions) and display pca plot (2 dimensions)
@@ -612,7 +613,44 @@ def pancreas_rnavelo_50pcs():
 
     X = torch.tensor(adata.obsm["X_pca"])
     flows = torch.tensor(adata.obsm["velocity_pca"])
-    labels = add_labels_pancreas(adata.obs["clusters"])
+    labels = add_labels(adata.obs["clusters"])
+
+    return X, flows, labels
+
+# Cell
+
+def d_rnavelo_load_data():
+    # load data
+    adata = scv.datasets.dentategyrus()
+
+    #preprocess data and calculate rna velocity
+    scv.pp.filter_and_normalize(adata)
+    scv.pp.moments(adata)
+    scv.tl.velocity(adata, mode='stochastic')
+
+    return adata
+
+def d_rnavelo():
+    # load preprocessed data
+    adata = d_rnavelo_load_data()
+
+    # set datapoints (X) and flows
+    X = torch.tensor(adata.X.todense())
+    flows = torch.tensor(adata.layers["velocity"])
+    labels = add_labels(adata.obs["clusters"])
+
+    return X, flows, labels
+
+def d_rnavelo_pcs():
+    adata = d_rnavelo_load_data()
+
+    # calculate velocity pca (50 dimensions) and display pca plot (2 dimensions)
+    scv.tl.velocity_graph(adata)
+    scv.pl.velocity_embedding_stream(adata, basis='pca')
+
+    X = torch.tensor(adata.obsm["X_pca"])
+    flows = torch.tensor(adata.obsm["velocity_pca"])
+    labels = add_labels(adata.obs["clusters"])
 
     return X, flows, labels
 

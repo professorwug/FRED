@@ -6,7 +6,7 @@ __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset', 'm
 
 # Cell
 
-def affinity_from_flow(flow, directions_array, flow_strength = 1, sigma=1):
+def affinity_from_flow(flows, directions_array, flow_strength = 1, sigma=1):
     """Compute probabilities of transition in the given directions based on the flow.
 
     Parameters
@@ -29,7 +29,7 @@ def affinity_from_flow(flow, directions_array, flow_strength = 1, sigma=1):
     # Calculate flow lengths, used to scale directions to flow
     # flow_lengths = torch.linalg.norm(flow,dim=-1)
     if len(directions_array) == 1: # convert to 2d array if necessary
-      directions_array = directions_array[:,None]
+        directions_array = directions_array[:,None]
     # scale directions to have same norm as flow
     # scaled_directions = normed_directions * flow_lengths[:,None].repeat(directions_array.shape[0],1,directions_array.shape[2])
     # compute dot products as matrix multiplication
@@ -50,7 +50,7 @@ def affinity_from_flow(flow, directions_array, flow_strength = 1, sigma=1):
 
 # Cell
 
-def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flow,n_neighbors=None,sigma=0.5, flow_strength=1):
+def affinity_matrix_from_pointset_to_pointset(pointset1,pointset2,flows,n_neighbors=None,sigma=0.5, flow_strength=1):
     """Compute affinity matrix between the points of pointset1 and pointset2, using the provided flow.
 
     Parameters
@@ -78,7 +78,7 @@ def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flow,n_neigh
     # dimension 2 represents direction from point j
     # dimension 3 represents direction in each dimension (R^n)
     # compute affinities from flow and directions
-    affinities = affinity_from_flow(flow,P3,sigma=sigma,flow_strength=flow_strength)
+    affinities = affinity_from_flow(flows,P3,sigma=sigma,flow_strength=flow_strength)
 
     return affinities
 
