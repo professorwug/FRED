@@ -2,9 +2,9 @@
 
 __all__ = ['SmallRandom', 'xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'directed_spiral_uniform',
            'directed_spiral_sklearn', 'generate_prism', 'directed_cylinder', 'directed_swiss_roll',
-           'directed_spiral_uniform', 'directed_spiral_sklearn', 'pancreas_rnavelo_load_data', 'add_labels_pancreas', 
-           'pancreas_rnavelo', 'pancreas_rnavelo_50pcs', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d',
-           'visualize_graph', 'visualize_heatmap']
+           'directed_swiss_roll_uniform', 'directed_swiss_roll_sklearn', 'pancreas_rnavelo_load_data',
+           'add_labels_pancreas', 'pancreas_rnavelo', 'pancreas_rnavelo_50pcs', 'plot_directed_2d', 'plot_origin_3d',
+           'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
 
 # Cell
 import warnings
@@ -169,53 +169,15 @@ def directed_swiss_roll(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xt
     return X, flows, labels
 
 # Cell
-def directed_spiral_uniform(num_nodes=500, num_spirals=1.5, inwards=False, radius=1, xtilt=0, ytilt=0, sigma=0):
-    # sample random angles between 0 and num_spirals * 2pi
-    t1 = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
-    t2 = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
-    thetas = np.maximum(t1, t2)
-    thetas = np.sort(thetas)
-    labels = thetas
-    # calculate x and y coordinates
-    x = np.cos(thetas) * thetas * radius
-    y = np.sin(thetas) * thetas * radius
-    z = np.zeros(num_nodes)
-    X = np.column_stack((x, y, z))
-    # calculate the angle of the tangent
-    alphas = thetas + np.pi/2
-    # calculate the coordinates of the tangent
-    u = np.cos(alphas)
-    v = np.sin(alphas)
-    w = np.zeros(num_nodes)
-    flows = np.column_stack((u, v, w))
-    flows = -flows if inwards else flows
-    # tilt and add noise
-    X, flows = xy_tilt(X, flows, xtilt, ytilt)
-    X = add_noise(X, sigma)
+def directed_swiss_roll_uniform(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_spiral_uniform(num_nodes, num_spirals, radius, xtilt, ytilt, sigma, inverse)
+    X = generate_prism(num_nodes, X, height)
     return X, flows, labels
 
 # Cell
-def directed_spiral_sklearn(num_nodes=500, num_spirals=1.5, inwards=False, radius=1, xtilt=0, ytilt=0, sigma=0):
-    # sample random angles between 0 and num_spirals * 2pi
-    thetas = np.random.uniform(num_spirals*np.pi, num_spirals*3*np.pi, num_nodes)
-    thetas = np.sort(thetas)
-    labels = thetas
-    # calculate x and y coordinates
-    x = np.cos(thetas) * thetas * radius
-    y = np.sin(thetas) * thetas * radius
-    z = np.zeros(num_nodes)
-    X = np.column_stack((x, y, z))
-    # calculate the angle of the tangent
-    alphas = thetas + np.pi/2
-    # calculate the coordinates of the tangent
-    u = np.cos(alphas) * thetas
-    v = np.sin(alphas) * thetas
-    w = np.zeros(num_nodes)
-    flows = np.column_stack((u, v, w))
-    flows = -flows if inwards else flows
-    # tilt and add noise
-    X, flows = xy_tilt(X, flows, xtilt, ytilt)
-    X = add_noise(X, sigma)
+def directed_swiss_roll_sklearn(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_spiral_sklearn(num_nodes, num_spirals, radius, xtilt, ytilt, sigma, inverse)
+    X = generate_prism(num_nodes, X, height)
     return X, flows, labels
 
 # Cell
