@@ -419,6 +419,7 @@ class HalfCycleGraph(InMemoryDataset):
 
 # Cell
 # Tilt 2d plane into 3d space
+import numpy as np
 def xy_tilt(X, flows, xtilt=0, ytilt=0):
     xrotate = np.array([[1,              0,             0],
                         [0,  np.cos(xtilt), np.sin(xtilt)],
@@ -509,7 +510,7 @@ def directed_spiral_uniform(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, y
     return X, flows, labels
 
 # Cell
-def directed_spiral_sklearn(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+def directed_spiral_delayed(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
     # sample random angles between 0 and num_spirals * 2pi
     thetas = np.random.uniform(num_spirals*np.pi, num_spirals*3*np.pi, num_nodes)
     thetas = np.sort(thetas)
@@ -557,29 +558,188 @@ def directed_swiss_roll_uniform(num_nodes=1000, num_spirals=1.5, height=20, radi
     return X, flows, labels
 
 # Cell
-def directed_swiss_roll_sklearn(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
-    X, flows, labels = directed_spiral_sklearn(num_nodes, num_spirals, radius, xtilt, ytilt, sigma, inverse)
+def directed_swiss_roll_delayed(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_spiral_delayed(num_nodes, num_spirals, radius, xtilt, ytilt, sigma, inverse)
     X = generate_prism(num_nodes, X, height)
+    return X, flows, labels
+
+# Cell
+def directed_one_variable_function(func, deriv, xlow, xhigh, num_nodes=100, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    # positions
+    x = np.random.uniform(xlow, xhigh, num_nodes)
+    x = np.sort(x)
+    y = func(x)
+    z = np.zeros(num_nodes)
+    X = np.column_stack((x, y, z))
+    labels = x
+    # vectors
+    u = np.ones(num_nodes)
+    v = deriv(x)
+    w = np.zeros(num_nodes)
+    flows = np.column_stack((u, v, w))
+    flows = -flows if inverse else flows
+    # tilt and add noise
+    X, flows = xy_tilt(X, flows, xtilt, ytilt)
+    X = add_noise(X, sigma)
+    return X, flows, labels
+
+# Cell
+def directed_sine(num_nodes=500, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_one_variable_function(
+        lambda x: np.sin(x / xscale) * yscale,
+        lambda x: np.cos(x / xscale) / xscale * yscale,
+        xlow, xhigh,
+        num_nodes, xtilt, ytilt, sigma, inverse
+    )
+    return X, flows, labels
+
+# Cell
+def directed_sine_ribbon(num_nodes=1000, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, height=20, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_sine(num_nodes, xscale, yscale, xlow, xhigh, xtilt, ytilt, sigma, inverse)
+    X = generate_prism(num_nodes, X, height)
+    return X, flows, labels
+
+# Cell
+def directed_sinh(num_nodes=500, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_one_variable_function(
+        lambda x: np.sinh(x / xscale) * yscale,
+        lambda x: np.cosh(x / xscale) / xscale * yscale,
+        xlow, xhigh,
+        num_nodes, xtilt, ytilt, sigma, inverse
+    )
+    return X, flows, labels
+
+# Cell
+def directed_sinh_branch(num_nodes=1000, xscale=1, yscale=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    num_nodes_per_branch = num_nodes//3
+    X_root, flows_root, labels_root = directed_sinh(num_nodes-2*num_nodes_per_branch, xscale, yscale, -xscale*np.pi*0.84, 0, xtilt, ytilt, sigma, inverse)
+    X_branch1, flows_branch1, labels_branch1 = directed_sinh(num_nodes_per_branch, xscale, yscale, 0, xscale*np.pi*0.84, xtilt, ytilt, sigma, inverse)
+    X_branch2, flows_branch2, labels_branch2 = directed_sine(num_nodes_per_branch, xscale, yscale, 0, xscale*np.pi*2, xtilt, ytilt, sigma, inverse)
+    # concatenate
+    X = np.concatenate((X_root, X_branch1, X_branch2))
+    flows = np.concatenate((flows_root, flows_branch1, flows_branch2))
+    labels = np.concatenate((labels_root - np.pi*3, labels_branch1, labels_branch2 + np.pi*3))
+    return X, flows, labels
+
+
+# Cell
+def directed_sine_moons(num_nodes=500, xscale=0.5, yscale=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    num_nodes_per_moon = num_nodes // 2
+    X_moon1, flows_moon1, labels_moon1 = directed_sine(num_nodes_per_moon, xscale, yscale, 0, xscale*np.pi, xtilt, ytilt, sigma, inverse)
+    X_moon2, flows_moon2, labels_moon2 = X, flows, labels = directed_one_variable_function(
+        lambda x: np.cos(x / xscale) * yscale + 0.3,
+        lambda x: -np.sin(x / xscale) / xscale * yscale,
+        xscale*np.pi/2, xscale*np.pi*3/2,
+        num_nodes_per_moon, xtilt, ytilt, sigma, inverse
+    )
+    # concatenate
+    X = np.concatenate((X_moon1, X_moon2))
+    flows = np.concatenate((flows_moon1, flows_moon2))
+    labels = np.concatenate((labels_moon1 - np.pi, labels_moon2))
+    return X, flows, labels
+
+# Cell
+def angle_x(X):
+    """Returns angle in [0, 2pi] corresponding to each point X"""
+    X_complex = X[:,0] + np.array([1j])*X[:,1]
+    return np.angle(X_complex)
+
+# Cell
+def whirlpool(X):
+    """Generates a whirlpool for flow assignment. Works in both 2d and 3d space.
+
+    Parameters
+    ----------
+    X : ndarray
+        input data, 2d or 3d
+    """
+    # convert X into angles theta, where 0,0 is 0, and 0,1 is pi/2
+    X_angles = angle_x(X)
+    # create flows
+    flow_x = np.sin(2*np.pi - X_angles)
+    flow_y = np.cos(2*np.pi - X_angles)
+    output = np.column_stack([flow_x,flow_y])
+    if X.shape[1] == 3:
+        # data is 3d
+        flow_z = np.zeros(X.shape[0])
+        output = np.column_stack([output,flow_z])
+    return output
+
+# Cell
+def rejection_sample_for_torus(n, r, R):
+    # Rejection sampling torus method [Sampling from a torus (Revolutions)](https://blog.revolutionanalytics.com/2014/02/sampling-from-a-torus.html)
+    xvec = np.random.random(n) * 2 * np.pi
+    yvec = np.random.random(n) * (1/np.pi)
+    fx = (1 + (r/R)*np.cos(xvec)) / (2*np.pi)
+    return xvec[yvec < fx]
+
+def directed_torus(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=None, use_guide_points = False):
+    """
+    Sample `n` data points on a torus. Modified from [tadasets.shapes — TaDAsets 0.1.0 documentation](https://tadasets.scikit-tda.org/en/latest/_modules/tadasets/shapes.html#torus)
+    Uses rejection sampling.
+
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    n : int
+        Number of data points in shape.
+    c : float
+        Distance from center to center of tube.
+    a : float
+        Radius of tube.
+    flow_type, in ['whirlpool']
+
+    ambient : int, default=None
+        Embed the torus into a space with ambient dimension equal to `ambient`. The torus is randomly rotated in this high dimensional space.
+    seed : int, default=None
+        Seed for random state.
+    """
+
+    assert a <= c, "That's not a torus"
+
+    np.random.seed(seed)
+    theta = rejection_sample_for_torus(n-2, a, c)
+    phi = np.random.random((len(theta))) * 2.0 * np.pi
+
+    X = np.zeros((len(theta), 3))
+    X[:, 0] = (c + a * np.cos(theta)) * np.cos(phi)
+    X[:, 1] = (c + a * np.cos(theta)) * np.sin(phi)
+    X[:, 2] = a * np.sin(theta)
+
+    if use_guide_points:
+        X = np.vstack([[[0,-c-a,0],[0,c-a,0],[0,c,a]],X])
+
+    if noise:
+        X += noise * np.random.randn(*X.shape)
+
+    if flow_type == 'whirlpool':
+        flows = whirlpool(X)
+    else:
+        raise NotImplementedError
+
+    return X, flows, phi
+
+# Cell
+import tadasets
+def directed_sphere(n=2000, r=1, flow_type = 'whirlpool', noise=None):
+    X = tadasets.sphere(n, r, noise)
+    labels = angle_x(X)
+    if flow_type == 'whirlpool':
+        flows = whirlpool(X)
+    else:
+        raise NotImplementedError
     return X, flows, labels
 
 # Cell
 
 import scvelo as scv
 import numpy as np
-import torch
-import scipy
 
 def add_labels(clusters):
     cluster_set = set(clusters)
-    d = {}
-    count = 0
-    for c in cluster_set:
-        d[c] = count
-        count +=1
-    labels = []
-    for i in range(len(clusters)):
-        labels.append(d[clusters[i]])
-
+    d = {cluster: i for i, cluster in enumerate(cluster_set)}
+    labels = np.array([d[cluster] for cluster in clusters])
     return labels
 
 def pancreas_rnavelo_load_data():
@@ -658,15 +818,18 @@ def d_rnavelo_pcs():
 import matplotlib.pyplot as plt
 
 
-def plot_directed_2d(X, flows, labels, mask_prob=0.5, cmap="viridis"):
+def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None):
     num_nodes = X.shape[0]
-    fig = plt.figure()
-    ax = fig.add_subplot()
-    ax.scatter(X[:, 0], X[:, 1], marker=".", c=labels, cmap=cmap)
+    alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot()
+    ax.scatter(X[:, 0], X[:, 1], marker=".", c=labels, cmap=cmap, alpha=alpha_points)
     mask = np.random.rand(num_nodes) > mask_prob
-    ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=0.1)
+    ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=alpha_arrows)
     ax.set_aspect("equal")
-    plt.show()
+    if ax is None:
+        plt.show()
 
 
 # Cell
@@ -676,11 +839,13 @@ def plot_origin_3d(ax, xlim, ylim, zlim):
     ax.plot([0, 0], [0, 0], zlim, color="k", alpha=0.5)
 
 
-def plot_directed_3d(X, flow, labels, mask_prob=0.5, cmap="viridis", origin=False):
+def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False, ax=None):
     num_nodes = X.shape[0]
+    alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     mask = np.random.rand(num_nodes) > mask_prob
-    fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
     if origin:
         plot_origin_3d(
             ax,
@@ -688,7 +853,7 @@ def plot_directed_3d(X, flow, labels, mask_prob=0.5, cmap="viridis", origin=Fals
             ylim=[X[:, 1].min(), X[:, 1].max()],
             zlim=[X[:, 2].min(), X[:, 2].max()],
         )
-    ax.scatter(X[:, 0], X[:, 1], X[:, 2], marker=".", c=labels, cmap=cmap)
+    ax.scatter(X[:, 0], X[:, 1], X[:, 2], marker=".", c=labels, cmap=cmap, alpha=alpha_points)
     ax.quiver(
         X[mask, 0],
         X[mask, 1],
@@ -696,10 +861,11 @@ def plot_directed_3d(X, flow, labels, mask_prob=0.5, cmap="viridis", origin=Fals
         flow[mask, 0],
         flow[mask, 1],
         flow[mask, 2],
-        alpha=0.1,
+        alpha=alpha_arrows,
         length=0.5,
     )
-    plt.show()
+    if ax is None:
+        plt.show()
 
 
 # Cell
@@ -753,27 +919,29 @@ def plot_3d(
 
 # Cell
 import matplotlib.pyplot as plt
-import networkx as nx
-from torch_geometric.utils import to_networkx
-
-
-def visualize_graph(data):
-    G = to_networkx(data, to_undirected=False)
-    nx.draw_networkx(
-        G, pos=nx.spring_layout(G, seed=42), arrowsize=20, node_color="#adade0"
-    )
-    plt.show()
-
+def display_flow_galary(func_set, ncol=4):
+    nfunc = len(func_set)
+    ncol = 4
+    nrow = int(np.ceil(nfunc/ncol))
+    fig = plt.figure(figsize=(4*ncol, 3*nrow))
+    for i, func in enumerate(func_set):
+        name, call = func
+        ax = fig.add_subplot(nrow, ncol, i+1, projection="3d")
+        X, flows, labels = call()
+        plot_directed_3d(X, flows, labels, mask_prob=0.5, ax=ax)
+        ax.set_title(name, y=1.0)
 
 # Cell
-import torch
-import matplotlib.pyplot as plt
-from torch_geometric.utils import to_dense_adj
-
-
-def visualize_heatmap(edge_index, order_ind=None, cmap = "copper"):
-    dense_adj = to_dense_adj(edge_index)[0]
+def visualize_edge_index(edge_index, order_ind=None, cmap = "copper", ax=None):
+    num_nodes = edge_index.max() + 1
+    row, col = edge_index
+    dense_adj = np.zeros((num_nodes, num_nodes))
+    for r, c in zip(row, col):
+        dense_adj[r,c] = 1
     if order_ind is not None:
         dense_adj = dense_adj[order_ind, :][:, order_ind]
-    plt.imshow(dense_adj, cmap=cmap)
-    plt.show()
+    if ax is not None:
+        ax.imshow(dense_adj, cmap=cmap)
+    else:
+        plt.imshow(dense_adj, cmap=cmap)
+        plt.show()
