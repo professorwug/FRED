@@ -23,9 +23,12 @@ index = {"SmallRandom": "01a01a Small Random Directed Graphs.ipynb",
          "plot_directed_3d": "01c Plotting Utils.ipynb",
          "plot_3d": "01c Plotting Utils.ipynb",
          "visualize_graph": "01c Plotting Utils.ipynb",
-         "visualize_heatmap": "01c Plotting Utils.ipynb"}
+         "visualize_heatmap": "01c Plotting Utils.ipynb",
+         "affinity_from_flow": "02a Flashlight Kernel.ipynb",
+         "affinity_matrix_from_pointset_to_pointset": "02a Flashlight Kernel.ipynb"}
 
-modules = ["datasets.py"]
+modules = ["datasets.py",
+           "data_processing.py"]
 
 doc_url = "https://x.riddle.press/FlowNet/"
 
