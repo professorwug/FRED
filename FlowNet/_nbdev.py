@@ -46,6 +46,7 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "display_flow_galary": "01c Plotting Utils.ipynb",
          "visualize_graph": "01c Plotting Utils.ipynb",
          "visualize_heatmap": "01c Plotting Utils.ipynb",
+         "visualize_edge_index": "01c Plotting Utils.ipynb",
          "affinity_from_flow": "02a Flashlight Kernel.ipynb",
          "affinity_matrix_from_pointset_to_pointset": "02a Flashlight Kernel.ipynb",
          "make_sparse_safe": "02b Diffusion Maps and Distances.ipynb",
@@ -56,7 +57,8 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "diffusion_matrix_from_points": "02b Diffusion Maps and Distances.ipynb",
          "diffusion_coordinates": "02b Diffusion Maps and Distances.ipynb",
          "diffusion_map_from_points": "02b Diffusion Maps and Distances.ipynb",
-         "diffusion_map_from_affinities": "02b Diffusion Maps and Distances.ipynb"}
+         "diffusion_map_from_affinities": "02b Diffusion Maps and Distances.ipynb",
+         "directed_neighbors": "02c Flow Neighborhoods.ipynb"}
 
 modules = ["graph_datasets.py",
            "datasets.py",

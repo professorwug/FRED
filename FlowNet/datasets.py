@@ -6,7 +6,8 @@ __all__ = ['xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'direct
            'directed_sin', 'directed_sin_ribbon', 'directed_sinh', 'directed_sinh_branch', 'directed_sin_moons',
            'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere',
            'pancreas_rnavelo_load_data', 'add_labels_pancreas', 'pancreas_rnavelo', 'pancreas_rnavelo_50pcs',
-           'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d', 'display_flow_galary']
+           'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d', 'display_flow_galary',
+           'visualize_edge_index']
 
 # Cell
 # Tilt 2d plane into 3d space
@@ -484,3 +485,18 @@ def display_flow_galary(func_set, ncol=4):
         X, flows, labels = call()
         plot_directed_3d(X, flows, labels, mask_prob=0.5, ax=ax)
         ax.set_title(name, y=1.0)
+
+# Cell
+def visualize_edge_index(edge_index, order_ind=None, cmap = "copper", ax=None):
+    num_nodes = edge_index.max() + 1
+    row, col = edge_index
+    dense_adj = np.zeros((num_nodes, num_nodes))
+    for r, c in zip(row, col):
+        dense_adj[r,c] = 1
+    if order_ind is not None:
+        dense_adj = dense_adj[order_ind, :][:, order_ind]
+    if ax is not None:
+        ax.imshow(dense_adj, cmap=cmap)
+    else:
+        plt.imshow(dense_adj, cmap=cmap)
+        plt.show()

@@ -419,8 +419,8 @@ import networkx as nx
 from torch_geometric.utils import to_networkx
 
 
-def visualize_graph(data):
-    G = to_networkx(data, to_undirected=False)
+def visualize_graph(data, is_networkx=False, to_undirected=False):
+    G = data if is_networkx else to_networkx(data, to_undirected=to_undirected)
     nx.draw_networkx(
         G, pos=nx.spring_layout(G, seed=42), arrowsize=20, node_color="#adade0"
     )
@@ -433,9 +433,12 @@ import matplotlib.pyplot as plt
 from torch_geometric.utils import to_dense_adj
 
 
-def visualize_heatmap(edge_index, order_ind=None, cmap = "copper"):
+def visualize_heatmap(edge_index, order_ind=None, cmap = "copper", ax=None):
     dense_adj = to_dense_adj(edge_index)[0]
     if order_ind is not None:
         dense_adj = dense_adj[order_ind, :][:, order_ind]
-    plt.imshow(dense_adj, cmap=cmap)
-    plt.show()
+    if ax is not None:
+        ax.imshow(dense_adj, cmap=cmap)
+    else:
+        plt.imshow(dense_adj, cmap=cmap)
+        plt.show()
