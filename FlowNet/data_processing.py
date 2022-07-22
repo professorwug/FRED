@@ -3,6 +3,7 @@
 __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset']
 
 # Cell
+import torch.nn.functional as F
 def affinity_from_flow(flow, directions_array, flow_strength = 1, sigma=1):
     """Compute probabilities of transition in the given directions based on the flow.
 
@@ -26,7 +27,7 @@ def affinity_from_flow(flow, directions_array, flow_strength = 1, sigma=1):
     # Calculate flow lengths, used to scale directions to flow
     # flow_lengths = torch.linalg.norm(flow,dim=-1)
     if len(directions_array) == 1: # convert to 2d array if necessary
-      directions_array = directions_array[:,None]
+        directions_array = directions_array[:,None]
     # scale directions to have same norm as flow
     # scaled_directions = normed_directions * flow_lengths[:,None].repeat(directions_array.shape[0],1,directions_array.shape[2])
     # compute dot products as matrix multiplication
@@ -46,6 +47,7 @@ def affinity_from_flow(flow, directions_array, flow_strength = 1, sigma=1):
     return kernel
 
 # Cell
+
 def affinity_matrix_from_pointset_to_pointset(pointset1, pointset2, flow,n_neighbors=None,sigma=0.5, flow_strength=1):
     """Compute affinity matrix between the points of pointset1 and pointset2, using the provided flow.
 

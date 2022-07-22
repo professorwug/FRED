@@ -2,7 +2,8 @@
 
 __all__ = ['SmallRandom', 'xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'directed_spiral_uniform',
            'directed_spiral_sklearn', 'generate_prism', 'directed_cylinder', 'directed_swiss_roll',
-           'directed_swiss_roll_uniform', 'directed_swiss_roll_sklearn', 'pancreas_rnavelo_load_data',
+           'directed_swiss_roll_uniform', 'directed_swiss_roll_sklearn', 'directed_one_variable_function',
+           'directed_sinh_branch', 'directed_sin', 'directed_sin_ribbon', 'pancreas_rnavelo_load_data',
            'add_labels_pancreas', 'pancreas_rnavelo', 'pancreas_rnavelo_50pcs', 'plot_directed_2d', 'plot_origin_3d',
            'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
 
@@ -181,11 +182,85 @@ def directed_swiss_roll_sklearn(num_nodes=1000, num_spirals=1.5, height=20, radi
     return X, flows, labels
 
 # Cell
+def directed_one_variable_function(func, deriv, xlow, xhigh, num_nodes=100, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    # positions
+    x = np.random.uniform(xlow, xhigh, num_nodes)
+    x = np.sort(x)
+    y = func(x)
+    z = np.zeros(num_nodes)
+    X = np.column_stack((x, y, z))
+    labels = x
+    # vectors
+    u = np.ones(num_nodes)
+    v = deriv(x)
+    w = np.zeros(num_nodes)
+    flows = np.column_stack((u, v, w))
+    flows = -flows if inverse else flows
+    # tilt and add noise
+    X, flows = xy_tilt(X, flows, xtilt, ytilt)
+    X = add_noise(X, sigma)
+    return X, flows, labels
+
+# Cell
+def directed_sinh_branch(num_nodes=1000, xscale=1, yscale=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    num_nodes_per_branch = num_nodes//3
+    # root
+    X_root, flow_root, labels_root = directed_one_variable_function(
+        lambda x: np.sinh(x / xscale) * yscale,
+        lambda x: np.cosh(x / xscale) / xscale * yscale,
+        xlow=-xscale*np.pi*0.84,
+        xhigh=0,
+        num_nodes=num_nodes - 2*num_nodes_per_branch,
+        sigma=sigma
+    )
+    # branch 1
+    X_branch1, flow_branch1, labels_branch1 = directed_one_variable_function(
+        lambda x: np.sinh(x / xscale) * yscale,
+        lambda x: np.cosh(x / xscale) / xscale * yscale,
+        xlow=0,
+        xhigh=xscale*np.pi*0.84,
+        num_nodes=num_nodes_per_branch,
+        sigma=sigma
+    )
+    # branch 2
+    X_branch2, flow_branch2, labels_branch2 = directed_one_variable_function(
+        lambda x: np.sin(x / xscale) * yscale,
+        lambda x: np.cos(x / xscale) / xscale * yscale,
+        xlow=0,
+        xhigh=xscale*np.pi*2,
+        num_nodes=num_nodes_per_branch,
+        sigma=sigma
+    )
+    # concatenate
+    X = np.concatenate((X_root, X_branch1, X_branch2))
+    flows = np.concatenate((flow_root, flow_branch1, flow_branch2))
+    labels = np.concatenate((labels_root - np.pi*3, labels_branch1, labels_branch2 + np.pi*3))
+    flows = -flows if inverse else flows
+    # tilt and add noise
+    X, flows = xy_tilt(X, flows, xtilt, ytilt)
+    X = add_noise(X, sigma)
+    return X, flows, labels
+
+
+# Cell
+def directed_sin(num_nodes=500, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_one_variable_function(
+        lambda x: np.sin(x / xscale) * yscale,
+        lambda x: np.cos(x / xscale) / xscale * yscale,
+        xlow, xhigh,
+        num_nodes, xtilt, ytilt, sigma, inverse)
+    return X, flows, labels
+
+# Cell
+def directed_sin_ribbon(num_nodes=1000, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, height=20, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    X, flows, labels = directed_sin(num_nodes, xscale, yscale, xlow, xhigh, xtilt, ytilt, sigma, inverse)
+    X = generate_prism(num_nodes, X, height)
+    return X, flows, labels
+
+# Cell
 
 import scvelo as scv
 import numpy as np
-import torch
-import scipy
 
 def pancreas_rnavelo_load_data():
     # load data
@@ -200,15 +275,8 @@ def pancreas_rnavelo_load_data():
 
 def add_labels_pancreas(clusters):
     cluster_set = set(clusters)
-    d = {}
-    count = 0
-    for c in cluster_set:
-        d[c] = count
-        count +=1
-    labels = []
-    for i in range(len(clusters)):
-        labels.append(d[clusters[i]])
-
+    d = {cluster: i for i, cluster in enumerate(cluster_set)}
+    labels = np.array([d[cluster] for cluster in clusters])
     return labels
 
 def pancreas_rnavelo():
@@ -216,8 +284,8 @@ def pancreas_rnavelo():
     adata = pancreas_rnavelo_load_data()
 
     # set datapoints (X) and flows
-    X = torch.tensor(adata.X.todense())
-    flows = torch.tensor(adata.layers["velocity"])
+    X = np.asarray(adata.X.todense())
+    flows = np.asarray(adata.layers["velocity"])
     labels = add_labels_pancreas(adata.obs["clusters"])
 
     return X, flows, labels
@@ -229,8 +297,8 @@ def pancreas_rnavelo_50pcs():
     scv.tl.velocity_graph(adata)
     scv.pl.velocity_embedding_stream(adata, basis='pca')
 
-    X = torch.tensor(adata.obsm["X_pca"])
-    flows = torch.tensor(adata.obsm["velocity_pca"])
+    X = np.asarray(adata.obsm["X_pca"])
+    flows = np.asarray(adata.obsm["velocity_pca"])
     labels = add_labels_pancreas(adata.obs["clusters"])
 
     return X, flows, labels
