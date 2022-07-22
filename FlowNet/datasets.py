@@ -5,7 +5,7 @@ __all__ = ['EmailEuNetwork', 'SourceSink', 'SmallRandom', 'DirectedStochasticBlo
            'directed_circle', 'directed_spiral', 'directed_spiral_uniform', 'directed_spiral_sklearn', 'generate_prism',
            'directed_cylinder', 'directed_swiss_roll', 'directed_swiss_roll_uniform', 'directed_swiss_roll_sklearn',
            'directed_one_variable_function', 'directed_sinh_branch', 'directed_sin', 'directed_sin_ribbon', 'angle_x',
-           'whirlpool', 'rejection_sample_for_torus', 'torus_with_flow', 'pancreas_rnavelo_load_data',
+           'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere', 'pancreas_rnavelo_load_data',
            'add_labels_pancreas', 'pancreas_rnavelo', 'pancreas_rnavelo_50pcs', 'plot_directed_2d', 'plot_origin_3d',
            'plot_directed_3d', 'plot_3d', 'visualize_graph', 'visualize_heatmap']
 
@@ -674,7 +674,7 @@ def rejection_sample_for_torus(n, r, R):
     fx = (1 + (r/R)*np.cos(xvec)) / (2*np.pi)
     return xvec[yvec < fx]
 
-def torus_with_flow(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=None, use_guide_points = False):
+def directed_torus(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=None, use_guide_points = False):
     """
     Sample `n` data points on a torus. Modified from [tadasets.shapes — TaDAsets 0.1.0 documentation](https://tadasets.scikit-tda.org/en/latest/_modules/tadasets/shapes.html#torus)
     Uses rejection sampling.
@@ -703,25 +703,34 @@ def torus_with_flow(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=
     theta = rejection_sample_for_torus(n-2, a, c)
     phi = np.random.random((len(theta))) * 2.0 * np.pi
 
-    data = np.zeros((len(theta), 3))
-    data[:, 0] = (c + a * np.cos(theta)) * np.cos(phi)
-    data[:, 1] = (c + a * np.cos(theta)) * np.sin(phi)
-    data[:, 2] = a * np.sin(theta)
+    X = np.zeros((len(theta), 3))
+    X[:, 0] = (c + a * np.cos(theta)) * np.cos(phi)
+    X[:, 1] = (c + a * np.cos(theta)) * np.sin(phi)
+    X[:, 2] = a * np.sin(theta)
 
     if use_guide_points:
-        data = np.vstack([[[0,-c-a,0],[0,c-a,0],[0,c,a]],data])
+        X = np.vstack([[[0,-c-a,0],[0,c-a,0],[0,c,a]],X])
 
     if noise:
-        data += noise * np.random.randn(*data.shape)
+        X += noise * np.random.randn(X.shape)
 
     if flow_type == 'whirlpool':
-        flows = whirlpool(data)
+        flows = whirlpool(X)
     else:
         raise NotImplementedError
-    # compute curvature of sampled torus
-    ks = 8*np.cos(theta)/(5 + np.cos(theta))
 
-    return data, flows
+    return X, flows, phi
+
+# Cell
+import tadasets
+def directed_sphere(n=2000, r=1, flow_type = 'whirlpool', noise=None):
+    X = tadasets.sphere(n, r, noise)
+    labels = angle_x(X)
+    if flow_type == 'whirlpool':
+        flows = whirlpool(X)
+    else:
+        raise NotImplementedError
+    return X, flows, labels
 
 # Cell
 
