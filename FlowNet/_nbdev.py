@@ -2,6 +2,7 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
+<<<<<<< HEAD
 index = {"SmallRandom": "01a01a Small Random Directed Graphs.ipynb",
          "xy_tilt": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
          "add_noise": "01a02a Polar 1-Manifold Toy Datasets.ipynb",
@@ -18,6 +19,11 @@ index = {"SmallRandom": "01a01a Small Random Directed Graphs.ipynb",
          "add_labels_pancreas": "01b02 Single-Cell Data and RNA Velocity.ipynb",
          "pancreas_rnavelo": "01b02 Single-Cell Data and RNA Velocity.ipynb",
          "pancreas_rnavelo_50pcs": "01b02 Single-Cell Data and RNA Velocity.ipynb",
+=======
+index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
+         "SourceSink": "01a01a Communities Datasets.ipynb",
+         "SmallRandom": "01a01b Small Random Directed Graphs.ipynb",
+>>>>>>> 72fc3db (Finished all graph datasets)
          "plot_directed_2d": "01c Plotting Utils.ipynb",
          "plot_origin_3d": "01c Plotting Utils.ipynb",
          "plot_directed_3d": "01c Plotting Utils.ipynb",
