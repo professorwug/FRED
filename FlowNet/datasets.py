@@ -712,7 +712,7 @@ def directed_torus(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=N
         X = np.vstack([[[0,-c-a,0],[0,c-a,0],[0,c,a]],X])
 
     if noise:
-        X += noise * np.random.randn(X.shape)
+        X += noise * np.random.randn(*X.shape)
 
     if flow_type == 'whirlpool':
         flows = whirlpool(X)
@@ -782,16 +782,18 @@ def pancreas_rnavelo_50pcs():
 import matplotlib.pyplot as plt
 
 
-def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis"):
+def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
-    fig = plt.figure()
-    ax = fig.add_subplot()
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot()
     ax.scatter(X[:, 0], X[:, 1], marker=".", c=labels, cmap=cmap, alpha=alpha_points)
     mask = np.random.rand(num_nodes) > mask_prob
     ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=alpha_arrows)
     ax.set_aspect("equal")
-    plt.show()
+    if ax is None:
+        plt.show()
 
 
 # Cell
@@ -801,12 +803,13 @@ def plot_origin_3d(ax, xlim, ylim, zlim):
     ax.plot([0, 0], [0, 0], zlim, color="k", alpha=0.5)
 
 
-def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False):
+def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False, ax=None):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     mask = np.random.rand(num_nodes) > mask_prob
-    fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(projection="3d")
     if origin:
         plot_origin_3d(
             ax,
@@ -825,7 +828,8 @@ def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin
         alpha=alpha_arrows,
         length=0.5,
     )
-    plt.show()
+    if ax is None:
+        plt.show()
 
 
 # Cell
