@@ -1,7 +1,7 @@
 {
   "FRED": {
     "Overview": "/",
-    "FlowNet": "00 Core.html",
+    "FRED": "00 Core.html",
     "01 Datasets": "01 Datasets.html",
     "01a01 Graph Toy Datasets": "01a01 Graph Toy Datasets.html",
     "01a01a Stanford Large Network Datasets with Ground-truth Communities": "01a01a Communities Datasets.html",

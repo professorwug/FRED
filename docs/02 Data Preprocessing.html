@@ -31,7 +31,7 @@ nb_path: "02 Data Preprocessing.ipynb"
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Philosophy">Philosophy<a class="anchor-link" href="#Philosophy"> </a></h2><p>FlowNet accepts data of two types, but regardless of the data type used, data preprocessing is required. This involves some fairly mundane things (like converting the data to tensor format, wrapping it in a dataloader, etc), but also a few bespoke steps specific to FlowNet, such as</p>
+<h2 id="Philosophy">Philosophy<a class="anchor-link" href="#Philosophy"> </a></h2><p>FRED accepts data of two types, but regardless of the data type used, data preprocessing is required. This involves some fairly mundane things (like converting the data to tensor format, wrapping it in a dataloader, etc), but also a few bespoke steps specific to FRED, such as</p>
 <ol>
 <li>Building a graph from the data using our flow-affinity "flashlight" kernel.</li>
 <li>Creating data batches which (rather like Node2vec) include a number of nearest neighbors, to enable neighbor-based loss functions to work.</li>

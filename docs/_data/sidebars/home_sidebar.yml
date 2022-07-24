@@ -10,7 +10,7 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
-      title: FlowNet
+      title: FRED
       url: 00 Core.html
     - output: web,pdf
       title: 01 Datasets
