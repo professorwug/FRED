@@ -2,7 +2,7 @@ repository: professorwug/FRED
 output: web
 topnav_title: FRED
 site_title: FRED
-company_name: MU
+company_name: SRC
 description: Flow Respecting Embeddings of Directed Graphs
 # Set to false to disable KaTeX math
 use_math: true
