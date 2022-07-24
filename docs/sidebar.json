@@ -3,7 +3,7 @@
     "Overview": "/",
     "FlowNet": "00 Core.html",
     "01 Datasets": "01 Datasets.html",
-    "Graph Toy Datasets": "01a01 Graph Toy Datasets.html",
+    "01a01 Graph Toy Datasets": "01a01 Graph Toy Datasets.html",
     "01a01a Stanford Large Network Datasets with Ground-truth Communities": "01a01a Communities Datasets.html",
     "01a01b Small Random Directed Graphs": "01a01b Small Random Directed Graphs.html",
     "01a01c Directed Stochastic Block Model": "01a01c Directed Stochastic Block Model.html",
@@ -16,9 +16,9 @@
     "01b02 RNA Velocity Data": "01b02 Single-Cell Data and RNA Velocity.html",
     "01c Plotting Utils": "01c Plotting Utils.html",
     "02 Data Preprocessing": "02 Data Preprocessing.html",
-    "The Flashlight Kernel": "02a Flashlight Kernel.html",
+    "02a The Flashlight Kernel": "02a Flashlight Kernel.html",
     "02b Diffusion Maps and Distances": "02b Diffusion Maps and Distances.html",
-    "Flow Neighborhoods": "02c Flow Neighborhoods.html",
+    "02c Flow Neighborhoods": "02c Flow Neighborhoods.html",
     "02d Flow Datasets": "02d Flow Datasets.html"
   }
 }
