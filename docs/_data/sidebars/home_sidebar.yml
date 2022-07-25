@@ -44,7 +44,7 @@ entries:
       url: 01a02d Sphere and Torus Toy Datasets.html
     - output: web,pdf
       title: Title
-      url: 01b01 Synthetic Single-Cell Data.html
+      url: 03d Grid Sampler.html
     - output: web,pdf
       title: 01b02 RNA Velocity Data
       url: 01b02 Single-Cell Data and RNA Velocity.html

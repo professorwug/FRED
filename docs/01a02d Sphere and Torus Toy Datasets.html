@@ -37,6 +37,27 @@ nb_path: "01a02d Sphere and Torus Toy Datasets.ipynb"
 </div>
 </div>
 </div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary data-open="Hide Code" data-close="Show Code"></summary>
+        <summary></summary>
+        <div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">FRED.datasets</span> <span class="kn">import</span> <span class="n">plot_directed_3d</span><span class="p">,</span> <span class="n">plot_directed_2d</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+</div>
+    {% endraw %}
+
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Flows">Flows<a class="anchor-link" href="#Flows"> </a></h2><p>Here's a bunch of sample flows in 3 space, which can be adapted to a variety of manifolds, like the sphere, torus, hyperboloid. The flows in this section don't have anything to do with the geometry of the manifold, but simply prescribe arrows to the entire 3 plane.</p>
@@ -62,7 +83,7 @@ nb_path: "01a02d Sphere and Torus Toy Datasets.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="angle_x" class="doc_header"><code>angle_x</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L234" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>angle_x</code>(<strong><code>X</code></strong>)</p>
+<h4 id="angle_x" class="doc_header"><code>angle_x</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L563" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>angle_x</code>(<strong><code>X</code></strong>)</p>
 </blockquote>
 <p>Returns angle in [0, 2pi] corresponding to each point X</p>
 
@@ -94,7 +115,7 @@ nb_path: "01a02d Sphere and Torus Toy Datasets.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="whirlpool" class="doc_header"><code>whirlpool</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L240" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>whirlpool</code>(<strong><code>X</code></strong>)</p>
+<h4 id="whirlpool" class="doc_header"><code>whirlpool</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L569" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>whirlpool</code>(<strong><code>X</code></strong>)</p>
 </blockquote>
 <p>Generates a whirlpool for flow assignment. Works in both 2d and 3d space.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>X : ndarray
@@ -135,7 +156,7 @@ nb_path: "01a02d Sphere and Torus Toy Datasets.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="rejection_sample_for_torus" class="doc_header"><code>rejection_sample_for_torus</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L261" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>rejection_sample_for_torus</code>(<strong><code>n</code></strong>, <strong><code>r</code></strong>, <strong><code>R</code></strong>)</p>
+<h4 id="rejection_sample_for_torus" class="doc_header"><code>rejection_sample_for_torus</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L590" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>rejection_sample_for_torus</code>(<strong><code>n</code></strong>, <strong><code>r</code></strong>, <strong><code>R</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -159,7 +180,7 @@ nb_path: "01a02d Sphere and Torus Toy Datasets.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="directed_torus" class="doc_header"><code>directed_torus</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L268" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>directed_torus</code>(<strong><code>n</code></strong>=<em><code>2000</code></em>, <strong><code>c</code></strong>=<em><code>2</code></em>, <strong><code>a</code></strong>=<em><code>1</code></em>, <strong><code>flow_type</code></strong>=<em><code>'whirlpool'</code></em>, <strong><code>noise</code></strong>=<em><code>None</code></em>, <strong><code>seed</code></strong>=<em><code>None</code></em>, <strong><code>use_guide_points</code></strong>=<em><code>False</code></em>)</p>
+<h4 id="directed_torus" class="doc_header"><code>directed_torus</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L597" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>directed_torus</code>(<strong><code>n</code></strong>=<em><code>2000</code></em>, <strong><code>c</code></strong>=<em><code>2</code></em>, <strong><code>a</code></strong>=<em><code>1</code></em>, <strong><code>flow_type</code></strong>=<em><code>'whirlpool'</code></em>, <strong><code>noise</code></strong>=<em><code>None</code></em>, <strong><code>seed</code></strong>=<em><code>None</code></em>, <strong><code>use_guide_points</code></strong>=<em><code>False</code></em>)</p>
 </blockquote>
 <p>Sample <code>n</code> data points on a torus. Modified from <a href="https://tadasets.scikit-tda.org/en/latest/_modules/tadasets/shapes.html#torus">tadasets.shapes — TaDAsets 0.1.0 documentation</a>
 Uses rejection sampling.</p>
@@ -171,8 +192,8 @@ c : float
 a : float
     Radius of tube.
 flow_type, in ['whirlpool']</p>
-<p>ambient : int, default=None
-    Embed the torus into a space with ambient dimension equal to <code>ambient</code>. The torus is randomly rotated in this high dimensional space.
+<p>noise : float, default=None
+    Amount of noise
 seed : int, default=None
     Seed for random state.</p>
 
@@ -272,7 +293,8 @@ seed : int, default=None
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Hypersphere">Hypersphere<a class="anchor-link" href="#Hypersphere"> </a></h2>
+<h2 id="Hypersphere">Hypersphere<a class="anchor-link" href="#Hypersphere"> </a></h2><p>We make use of the <code>tadasets</code> to sample from a sphere and add <a href="/FRED/01a02d Sphere and Torus Toy Datasets.html#whirlpool"><code>whirlpool</code></a> flow on top.</p>
+
 </div>
 </div>
 </div>
@@ -287,8 +309,19 @@ seed : int, default=None
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="directed_sphere" class="doc_header"><code>directed_sphere</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L317" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>directed_sphere</code>(<strong><code>n</code></strong>=<em><code>2000</code></em>, <strong><code>r</code></strong>=<em><code>1</code></em>, <strong><code>flow_type</code></strong>=<em><code>'whirlpool'</code></em>, <strong><code>noise</code></strong>=<em><code>None</code></em>)</p>
+<h4 id="directed_sphere" class="doc_header"><code>directed_sphere</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/datasets.py#L646" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>directed_sphere</code>(<strong><code>n</code></strong>=<em><code>2000</code></em>, <strong><code>r</code></strong>=<em><code>1</code></em>, <strong><code>flow_type</code></strong>=<em><code>'whirlpool'</code></em>, <strong><code>noise</code></strong>=<em><code>None</code></em>)</p>
 </blockquote>
+<p>Sample <code>n</code> data points on a sphere.
+In addition to the points, returns a "flow" vector at each point.</p>
+<h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>n : int
+    Number of data points in shape.
+r : float
+    Radius of sphere.
+flow_type, in ['whirlpool']</p>
+<p>noise : float, default=None
+    Amount of noise
+seed : int, default=None
+    Seed for random state.</p>
 
 </div>
 
