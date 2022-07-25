@@ -75,7 +75,7 @@ nb_path: "02b Diffusion Maps and Distances.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="make_sparse_safe" class="doc_header"><code>make_sparse_safe</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L110" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>make_sparse_safe</code>(<strong><code>A</code></strong>)</p>
+<h4 id="make_sparse_safe" class="doc_header"><code>make_sparse_safe</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L127" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>make_sparse_safe</code>(<strong><code>A</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -245,7 +245,7 @@ But, for compatibility, the functions will check whether the input is sparse, an
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="distance_matrix" class="doc_header"><code>distance_matrix</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L118" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>distance_matrix</code>(<strong><code>X</code></strong>, <strong><code>metric</code></strong>=<em><code>'euclidean'</code></em>)</p>
+<h4 id="distance_matrix" class="doc_header"><code>distance_matrix</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L135" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>distance_matrix</code>(<strong><code>X</code></strong>, <strong><code>metric</code></strong>=<em><code>'euclidean'</code></em>)</p>
 </blockquote>
 
 </div>
@@ -402,7 +402,7 @@ $$ D^{-\alpha} A D^{-\alpha} $$
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="anisotropic_kernel" class="doc_header"><code>anisotropic_kernel</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L125" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>anisotropic_kernel</code>(<strong><code>D</code></strong>, <strong><code>sigma</code></strong>=<em><code>0.7</code></em>, <strong><code>alpha</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="anisotropic_kernel" class="doc_header"><code>anisotropic_kernel</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L142" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>anisotropic_kernel</code>(<strong><code>D</code></strong>, <strong><code>sigma</code></strong>=<em><code>0.7</code></em>, <strong><code>alpha</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 <p>Computes anisotropic kernel of given distances matrix.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>D : ndarray or sparse
@@ -440,7 +440,7 @@ This is a good function.</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="adaptive_anisotropic_kernel" class="doc_header"><code>adaptive_anisotropic_kernel</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L144" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>adaptive_anisotropic_kernel</code>(<strong><code>D</code></strong>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>alpha</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="adaptive_anisotropic_kernel" class="doc_header"><code>adaptive_anisotropic_kernel</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L161" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>adaptive_anisotropic_kernel</code>(<strong><code>D</code></strong>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>alpha</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 
 </div>
@@ -531,23 +531,30 @@ However, the distances are never going to be sparse, so this doesn't matter.</p>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
 
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">zero_negligible_thresholds</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">):</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">make_sparse_safe</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
-    <span class="n">sparse_A_2</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">sparse_A_2</span> <span class="o">/=</span> <span class="n">threshold</span>
-    <span class="n">sparse_A_2</span> <span class="o">=</span> <span class="n">sparse_A_2</span><span class="o">.</span><span class="n">floor</span><span class="p">()</span>
-    <span class="n">sparse_A_2</span> <span class="o">/=</span> <span class="n">sparse_A_2</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-    <span class="n">sparse_A_2</span> <span class="o">=</span> <span class="n">sparse_A_2</span><span class="o">.</span><span class="n">ceil</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">A</span> <span class="o">*</span> <span class="n">sparse_A_2</span>
-</pre></div>
+<div class="output_wrapper">
+<div class="output">
 
-    </div>
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="zero_negligible_thresholds" class="doc_header"><code>zero_negligible_thresholds</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L175" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>zero_negligible_thresholds</code>(<strong><code>A</code></strong>, <strong><code>threshold</code></strong>=<em><code>1e-05</code></em>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
 </div>
 </div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
 
 </div>
     {% endraw %}
@@ -731,7 +738,7 @@ But we can row-normalize in <em>style</em>, while also including helper function
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="diffusion_matrix" class="doc_header"><code>diffusion_matrix</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L159" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_matrix</code>(<strong><code>A</code></strong>, <strong><code>symmetric</code></strong>=<em><code>False</code></em>, <strong><code>return_degree</code></strong>=<em><code>False</code></em>)</p>
+<h4 id="diffusion_matrix" class="doc_header"><code>diffusion_matrix</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L186" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_matrix</code>(<strong><code>A</code></strong>, <strong><code>symmetric</code></strong>=<em><code>False</code></em>, <strong><code>return_degree</code></strong>=<em><code>False</code></em>)</p>
 </blockquote>
 
 </div>
@@ -878,7 +885,7 @@ But we can row-normalize in <em>style</em>, while also including helper function
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="diffusion_matrix_from_points" class="doc_header"><code>diffusion_matrix_from_points</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L173" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_matrix_from_points</code>(<strong><code>X</code></strong>, <strong><code>anisotropy</code></strong>=<em><code>1</code></em>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>sigma</code></strong>=<em><code>None</code></em>, <strong><code>threshold</code></strong>=<em><code>1e-05</code></em>, <strong><code>metric</code></strong>=<em><code>'euclidean'</code></em>)</p>
+<h4 id="diffusion_matrix_from_points" class="doc_header"><code>diffusion_matrix_from_points</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L200" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_matrix_from_points</code>(<strong><code>X</code></strong>, <strong><code>anisotropy</code></strong>=<em><code>1</code></em>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>sigma</code></strong>=<em><code>None</code></em>, <strong><code>threshold</code></strong>=<em><code>1e-05</code></em>, <strong><code>metric</code></strong>=<em><code>'euclidean'</code></em>)</p>
 </blockquote>
 <p>Computes diffusion matrix from a data matrix, with options for type of kernel used.
 Returns a csr sparse array.</p>
@@ -937,7 +944,7 @@ metric : str, optional
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="diffusion_coordinates" class="doc_header"><code>diffusion_coordinates</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L203" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_coordinates</code>(<strong><code>P_symmetric</code></strong>, <strong><code>D</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>plot_evals</code></strong>=<em><code>False</code></em>)</p>
+<h4 id="diffusion_coordinates" class="doc_header"><code>diffusion_coordinates</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L230" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_coordinates</code>(<strong><code>P_symmetric</code></strong>, <strong><code>D</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>plot_evals</code></strong>=<em><code>False</code></em>)</p>
 </blockquote>
 
 </div>
@@ -1390,7 +1397,7 @@ metric : str, optional
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="diffusion_map_from_points" class="doc_header"><code>diffusion_map_from_points</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L233" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_map_from_points</code>(<strong><code>X</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>kernel_type</code></strong>=<em><code>'anisotropic'</code></em>, <strong><code>alpha</code></strong>=<em><code>0.5</code></em>, <strong><code>sigma</code></strong>=<em><code>'automatic'</code></em>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>plot_evals</code></strong>=<em><code>False</code></em>)</p>
+<h4 id="diffusion_map_from_points" class="doc_header"><code>diffusion_map_from_points</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L260" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_map_from_points</code>(<strong><code>X</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>kernel_type</code></strong>=<em><code>'anisotropic'</code></em>, <strong><code>alpha</code></strong>=<em><code>0.5</code></em>, <strong><code>sigma</code></strong>=<em><code>'automatic'</code></em>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>plot_evals</code></strong>=<em><code>False</code></em>)</p>
 </blockquote>
 <p>Creates diffusion map from data matrix X, using specified kernel.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>X : ndarray, possibly sparse
@@ -1436,7 +1443,7 @@ k : int, optional
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="diffusion_map_from_affinities" class="doc_header"><code>diffusion_map_from_affinities</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L267" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_map_from_affinities</code>(<strong><code>A</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>plot_evals</code></strong>=<em><code>False</code></em>)</p>
+<h4 id="diffusion_map_from_affinities" class="doc_header"><code>diffusion_map_from_affinities</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L294" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>diffusion_map_from_affinities</code>(<strong><code>A</code></strong>, <strong><code>t</code></strong>=<em><code>1</code></em>, <strong><code>plot_evals</code></strong>=<em><code>False</code></em>)</p>
 </blockquote>
 
 </div>
@@ -1614,7 +1621,7 @@ k : int, optional
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="plot_3d" class="doc_header"><code>plot_3d</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L284" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>plot_3d</code>(<strong><code>X</code></strong>, <strong><code>distribution</code></strong>=<em><code>None</code></em>, <strong><code>title</code></strong>=<em><code>''</code></em>, <strong><code>lim</code></strong>=<em><code>None</code></em>, <strong><code>use_plotly</code></strong>=<em><code>False</code></em>, <strong><code>colorbar</code></strong>=<em><code>False</code></em>, <strong><code>cmap</code></strong>=<em><code>'plasma'</code></em>)</p>
+<h4 id="plot_3d" class="doc_header"><code>plot_3d</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L311" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>plot_3d</code>(<strong><code>X</code></strong>, <strong><code>distribution</code></strong>=<em><code>None</code></em>, <strong><code>title</code></strong>=<em><code>''</code></em>, <strong><code>lim</code></strong>=<em><code>None</code></em>, <strong><code>use_plotly</code></strong>=<em><code>False</code></em>, <strong><code>colorbar</code></strong>=<em><code>False</code></em>, <strong><code>cmap</code></strong>=<em><code>'plasma'</code></em>)</p>
 </blockquote>
 
 </div>
