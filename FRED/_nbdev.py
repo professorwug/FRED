@@ -64,13 +64,23 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "diffusion_map_from_affinities": "02b Diffusion Maps and Distances.ipynb",
          "flow_neighbors": "02c Flow Neighborhoods.ipynb",
          "GaussianVectorField": "03b01 Gaussian Vector Field Flow Artist.ipynb",
+         "precomputed_distance_loss": "03c01 Diffusion Map MSE.ipynb",
+         "directed_neighbors": "03c02 Flow Neighbor MSE.ipynb",
+         "smoothness_of_vector_field": "03c03 Smoothness.ipynb",
+         "kl_divergence_loss": "03c04 KL Divergence.ipynb",
          "compute_grid": "03d Grid Sampler.ipynb",
-         "diffusion_matrix_with_grid_points": "03d Grid Sampler.ipynb"}
+         "diffusion_matrix_with_grid_points": "03d Grid Sampler.ipynb",
+         "FETrainer": "04 Trainer.ipynb",
+         "device": "04b Visualizations for Training.ipynb",
+         "visualize_points": "04b Visualizations for Training.ipynb",
+         "save_embedding_visualization": "04b Visualizations for Training.ipynb",
+         "collate_loss": "04b Visualizations for Training.ipynb"}
 
 modules = ["graph_datasets.py",
            "datasets.py",
            "data_processing.py",
-           "embed.py"]
+           "embed.py",
+           "trainers.py"]
 
 doc_url = "https://x.riddle.press/FRED/"
 
