@@ -4,10 +4,9 @@ __all__ = ['xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'direct
            'directed_spiral_delayed', 'generate_prism', 'directed_cylinder', 'directed_swiss_roll',
            'directed_swiss_roll_uniform', 'directed_swiss_roll_delayed', 'directed_one_variable_function',
            'directed_sine', 'directed_sine_ribbon', 'directed_sinh', 'directed_sinh_branch', 'directed_sine_moons',
-           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere',
-           'pancreas_rnavelo_load_data', 'pancreas_rnavelo', 'pancreas_rnavelo_pcs', 'd_rnavelo_load_data', 'd_rnavelo',
-           'd_rnavelo_pcs', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d', 'display_flow_galary',
-           'visualize_edge_index']
+           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere', 'add_labels',
+           'rnavelo', 'rnavelo_pcs', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d',
+           'visualize_edge_index', 'display_galary', 'display_flow_galary']
 
 # Cell
 # Tilt 2d plane into 3d space
@@ -29,6 +28,26 @@ def add_noise(X, sigma=0):
 
 # Cell
 def directed_circle(num_nodes=500, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a circle.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=500
+        Number of data points in shape.
+    radius : float, default=1
+        Radius of circle.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     # sample random angles between 0 and 2pi
     thetas = np.random.uniform(0, 2*np.pi, num_nodes)
     thetas = np.sort(thetas)
@@ -53,6 +72,28 @@ def directed_circle(num_nodes=500, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=
 
 # Cell
 def directed_spiral(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a spiral.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=500
+        Number of data points in shape.
+    num_spirals : float, default=1.5
+        Number of revolution.
+    radius : float, default=1
+        Radius of spiral.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     # sample random angles between 0 and num_spirals * 2pi
     thetas = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
     thetas = np.sort(thetas)
@@ -77,6 +118,28 @@ def directed_spiral(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, ytilt=0, 
 
 # Cell
 def directed_spiral_uniform(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a spiral.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=500
+        Number of data points in shape.
+    num_spirals : float, default=1.5
+        Number of revolution.
+    radius : float, default=1
+        Radius of spiral.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     # sample random angles between 0 and num_spirals * 2pi
     t1 = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
     t2 = np.random.uniform(0, num_spirals*2*np.pi, num_nodes)
@@ -103,6 +166,28 @@ def directed_spiral_uniform(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, y
 
 # Cell
 def directed_spiral_delayed(num_nodes=500, num_spirals=1.5, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a spiral.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=500
+        Number of data points in shape.
+    num_spirals : float, default=1.5
+        Number of revolution.
+    radius : float, default=1
+        Radius of spiral.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     # sample random angles between 0 and num_spirals * 2pi
     thetas = np.random.uniform(num_spirals*np.pi, num_spirals*3*np.pi, num_nodes)
     thetas = np.sort(thetas)
@@ -132,31 +217,151 @@ def generate_prism(num_nodes, X, height=20):
     return X
 
 # Cell
-def directed_cylinder(num_nodes=1000, radius=1, height=20, xtilt=0, ytilt=0, sigma=0, inverse=False):
+def directed_cylinder(num_nodes=1000, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a cylinder.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=1000
+        Number of data points in shape.
+    radius : float, default=1
+        Radius of cylinder.
+    height : float, default=20
+        Height of cylinder.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     X, flows, labels = directed_circle(num_nodes, radius, xtilt, ytilt, sigma, inverse)
     X = generate_prism(num_nodes, X, height)
     return X, flows, labels
 
 # Cell
 def directed_swiss_roll(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a swiss roll.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=1000
+        Number of data points in shape.
+    num_spirals : float, default=1.5
+        Number of revolution.
+    height : float, default=20
+        Height of swiss roll.
+    radius : float, default=1
+        Radius of swiss roll.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     X, flows, labels = directed_spiral(num_nodes, num_spirals, radius, xtilt, ytilt, sigma, inverse)
     X = generate_prism(num_nodes, X, height)
     return X, flows, labels
 
 # Cell
 def directed_swiss_roll_uniform(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a swiss roll.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=1000
+        Number of data points in shape.
+    num_spirals : float, default=1.5
+        Number of revolution.
+    height : float, default=20
+        Height of swiss roll.
+    radius : float, default=1
+        Radius of swiss roll.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     X, flows, labels = directed_spiral_uniform(num_nodes, num_spirals, radius, xtilt, ytilt, sigma, inverse)
     X = generate_prism(num_nodes, X, height)
     return X, flows, labels
 
 # Cell
 def directed_swiss_roll_delayed(num_nodes=1000, num_spirals=1.5, height=20, radius=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample `n` data points on a swiss roll.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=1000
+        Number of data points in shape.
+    num_spirals : float, default=1.5
+        Number of revolution.
+    height : float, default=20
+        Height of swiss roll.
+    radius : float, default=1
+        Radius of swiss roll.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     X, flows, labels = directed_spiral_delayed(num_nodes, num_spirals, radius, xtilt, ytilt, sigma, inverse)
     X = generate_prism(num_nodes, X, height)
     return X, flows, labels
 
 # Cell
 def directed_one_variable_function(func, deriv, xlow, xhigh, num_nodes=100, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample data points along a one variable function.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    func : function, y = func(x)
+        An one variable function
+    deriv : function, y' = deriv(x)
+        The derivative of func
+    xlow : float
+        Lower bound of x
+    xlow : float
+        Upper bound of x
+    num_nodes : int, default=100
+        Number of data points in shape.
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     # positions
     x = np.random.uniform(xlow, xhigh, num_nodes)
     x = np.sort(x)
@@ -177,6 +382,32 @@ def directed_one_variable_function(func, deriv, xlow, xhigh, num_nodes=100, xtil
 
 # Cell
 def directed_sine(num_nodes=500, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample data points along a sine function.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=500
+        Number of data points in shape.
+    xscale : float, default=1
+        Factor to stretch the x-axis
+    yscale : float, default=1
+        Factor to stretch the y-axis
+    xlow : float, default=-2*pi
+        Lower bound of x
+    xlow : float, default=2*pi
+        Upper bound of x
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     X, flows, labels = directed_one_variable_function(
         lambda x: np.sin(x / xscale) * yscale,
         lambda x: np.cos(x / xscale) / xscale * yscale,
@@ -187,12 +418,66 @@ def directed_sine(num_nodes=500, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.p
 
 # Cell
 def directed_sine_ribbon(num_nodes=1000, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, height=20, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample data points along a sine function with height.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=1000
+        Number of data points in shape.
+    xscale : float, default=1
+        Factor to stretch the x-axis
+    yscale : float, default=1
+        Factor to stretch the y-axis
+    xlow : float, default=-2*pi
+        Lower bound of x
+    xlow : float, default=2*pi
+        Upper bound of x
+    height : float, default=20
+        Height of the ribbon
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     X, flows, labels = directed_sine(num_nodes, xscale, yscale, xlow, xhigh, xtilt, ytilt, sigma, inverse)
     X = generate_prism(num_nodes, X, height)
     return X, flows, labels
 
 # Cell
 def directed_sinh(num_nodes=500, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.pi, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample data points along a sinh function.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=500
+        Number of data points in shape.
+    xscale : float, default=1
+        Factor to stretch the x-axis
+    yscale : float, default=1
+        Factor to stretch the y-axis
+    xlow : float, default=-2*pi
+        Lower bound of x
+    xlow : float, default=2*pi
+        Upper bound of x
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     X, flows, labels = directed_one_variable_function(
         lambda x: np.sinh(x / xscale) * yscale,
         lambda x: np.cosh(x / xscale) / xscale * yscale,
@@ -203,6 +488,28 @@ def directed_sinh(num_nodes=500, xscale=1, yscale=1, xlow=-2*np.pi, xhigh=2*np.p
 
 # Cell
 def directed_sinh_branch(num_nodes=1000, xscale=1, yscale=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample data points along a sinh-sine branch.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=1000
+        Number of data points in shape.
+    xscale : float, default=1
+        Factor to stretch the x-axis
+    yscale : float, default=1
+        Factor to stretch the y-axis
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     num_nodes_per_branch = num_nodes//3
     X_root, flows_root, labels_root = directed_sinh(num_nodes-2*num_nodes_per_branch, xscale, yscale, -xscale*np.pi*0.84, 0, xtilt, ytilt, sigma, inverse)
     X_branch1, flows_branch1, labels_branch1 = directed_sinh(num_nodes_per_branch, xscale, yscale, 0, xscale*np.pi*0.84, xtilt, ytilt, sigma, inverse)
@@ -215,7 +522,29 @@ def directed_sinh_branch(num_nodes=1000, xscale=1, yscale=1, xtilt=0, ytilt=0, s
 
 
 # Cell
-def directed_sine_moons(num_nodes=500, xscale=0.5, yscale=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+def directed_sine_moons(num_nodes=500, xscale=1, yscale=1, xtilt=0, ytilt=0, sigma=0, inverse=False):
+    """
+    Sample data points along two sine moons.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    num_nodes : int, default=500
+        Number of data points in shape.
+    xscale : float, default=1
+        Factor to stretch the x-axis
+    yscale : float, default=1
+        Factor to stretch the y-axis
+
+    xtilt : float, default=0
+        Angle to rotate around the x-axis.
+    ytilt : float, default=0
+        Angle to rotate around the y-axis.
+    sigma : float, default=0
+        Amount of gaussian noise
+    inverse : bool, default=False
+        Whether to flip the direction of flow
+    """
     num_nodes_per_moon = num_nodes // 2
     X_moon1, flows_moon1, labels_moon1 = directed_sine(num_nodes_per_moon, xscale, yscale, 0, xscale*np.pi, xtilt, ytilt, sigma, inverse)
     X_moon2, flows_moon2, labels_moon2 = X, flows, labels = directed_one_variable_function(
@@ -282,8 +611,8 @@ def directed_torus(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=N
         Radius of tube.
     flow_type, in ['whirlpool']
 
-    ambient : int, default=None
-        Embed the torus into a space with ambient dimension equal to `ambient`. The torus is randomly rotated in this high dimensional space.
+    noise : float, default=None
+        Amount of noise
     seed : int, default=None
         Seed for random state.
     """
@@ -315,6 +644,23 @@ def directed_torus(n=2000, c=2, a=1, flow_type = 'whirlpool', noise=None, seed=N
 # Cell
 import tadasets
 def directed_sphere(n=2000, r=1, flow_type = 'whirlpool', noise=None):
+    """
+    Sample `n` data points on a sphere.
+    In addition to the points, returns a "flow" vector at each point.
+
+    Parameters
+    -----------
+    n : int
+        Number of data points in shape.
+    r : float
+        Radius of sphere.
+    flow_type, in ['whirlpool']
+
+    noise : float, default=None
+        Amount of noise
+    seed : int, default=None
+        Seed for random state.
+    """
     X = tadasets.sphere(n, r, noise)
     labels = angle_x(X)
     if flow_type == 'whirlpool':
@@ -325,32 +671,34 @@ def directed_sphere(n=2000, r=1, flow_type = 'whirlpool', noise=None):
 
 # Cell
 
-def pancreas_rnavelo_load_data():
-    # load data
-    adata = scv.datasets.pancreas()
+import scvelo as scv
+import torch
 
+def add_labels(clusters):
+    cluster_set = set(clusters)
+    d = {cluster: i for i, cluster in enumerate(cluster_set)}
+    labels = torch.tensor([d[cluster] for cluster in clusters])
+
+    return labels
+
+def rnavelo(adata):
     #preprocess data and calculate rna velocity
     scv.pp.filter_and_normalize(adata)
     scv.pp.moments(adata)
     scv.tl.velocity(adata, mode='stochastic')
 
-    return adata
-
-def pancreas_rnavelo():
-    # load preprocessed data
-    adata = pancreas_rnavelo_load_data()
-
-    # set datapoints (X) and flows
     X = torch.tensor(adata.X.todense())
     flows = torch.tensor(adata.layers["velocity"])
     labels = add_labels(adata.obs["clusters"])
 
     return X, flows, labels
 
-def pancreas_rnavelo_pcs():
-    adata = pancreas_rnavelo_load_data()
+def rnavelo_pcs(adata):
+    scv.pp.filter_and_normalize(adata)
+    scv.pp.moments(adata)
+    scv.tl.velocity(adata, mode='stochastic')
 
-    # calculate velocity pca (50 dimensions) and display pca plot (2 dimensions)
+    # calculate velocity pca and display pca plot (2 dimensions)
     scv.tl.velocity_graph(adata)
     scv.pl.velocity_embedding_stream(adata, basis='pca')
 
@@ -358,43 +706,6 @@ def pancreas_rnavelo_pcs():
     flows = torch.tensor(adata.obsm["velocity_pca"])
     labels = add_labels(adata.obs["clusters"])
     n_pcs = X.shape[1]
-
-    return X, flows, labels, n_pcs
-
-# Cell
-
-def d_rnavelo_load_data():
-    # load data
-    adata = scv.datasets.dentategyrus()
-
-    #preprocess data and calculate rna velocity
-    scv.pp.filter_and_normalize(adata)
-    scv.pp.moments(adata)
-    scv.tl.velocity(adata, mode='stochastic')
-
-    return adata
-
-def d_rnavelo():
-    # load preprocessed data
-    adata = d_rnavelo_load_data()
-
-    # set datapoints (X) and flows
-    X = torch.tensor(adata.X.todense())
-    flows = torch.tensor(adata.layers["velocity"])
-    labels = add_labels(adata.obs["clusters"])
-
-    return X, flows, labels
-
-def d_rnavelo_pcs():
-    adata = d_rnavelo_load_data()
-
-    # calculate velocity pca (50 dimensions) and display pca plot (2 dimensions)
-    scv.tl.velocity_graph(adata)
-    scv.pl.velocity_embedding_stream(adata, basis='pca')
-
-    X = torch.tensor(adata.obsm["X_pca"])
-    flows = torch.tensor(adata.obsm["velocity_pca"])
-    labels = add_labels(adata.obs["clusters"])
 
     return X, flows, labels, n_pcs
 
@@ -502,20 +813,6 @@ def plot_3d(
 
 
 # Cell
-import matplotlib.pyplot as plt
-def display_flow_galary(func_set, ncol=4):
-    nfunc = len(func_set)
-    ncol = 4
-    nrow = int(np.ceil(nfunc/ncol))
-    fig = plt.figure(figsize=(4*ncol, 3*nrow))
-    for i, func in enumerate(func_set):
-        name, call = func
-        ax = fig.add_subplot(nrow, ncol, i+1, projection="3d")
-        X, flows, labels = call()
-        plot_directed_3d(X, flows, labels, mask_prob=0.5, ax=ax)
-        ax.set_title(name, y=1.0)
-
-# Cell
 def visualize_edge_index(edge_index, order_ind=None, cmap = "copper", ax=None):
     num_nodes = edge_index.max() + 1
     row, col = edge_index
@@ -529,3 +826,22 @@ def visualize_edge_index(edge_index, order_ind=None, cmap = "copper", ax=None):
     else:
         plt.imshow(dense_adj, cmap=cmap)
         plt.show()
+
+# Cell
+import matplotlib.pyplot as plt
+def display_galary(vizset, ncol=4):
+    nviz = len(vizset)
+    nrow = int(np.ceil(nviz/ncol))
+    fig = plt.figure(figsize=(4*ncol, 3*nrow))
+    for i, viz in enumerate(vizset):
+        name, data, vizcall, is3d = viz
+        ax = fig.add_subplot(nrow, ncol, i+1, projection="3d" if is3d else None)
+        vizcall(data, ax)
+        ax.set_title(name, y=1.0)
+
+# Cell
+def display_flow_galary(dataset, ncol=4):
+    vizset = []
+    for name, data in dataset:
+        vizset.append((name, data, lambda data, ax: plot_directed_3d(data[0], data[1], data[2], mask_prob=0.5, ax=ax), True))
+    display_galary(vizset, ncol)
