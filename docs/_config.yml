@@ -1,12 +1,12 @@
-repository: {user}/{lib_name}
+repository: professorwug/FRED
 output: web
-topnav_title: {lib_name}
-site_title: {lib_name}
-company_name: MU
-description: Directed Graph Embeddings with Flow
+topnav_title: FRED
+site_title: FRED
+company_name: SRC
+description: Flow Respecting Embeddings of Directed Graphs
 # Set to false to disable KaTeX math
 use_math: true
-# Add Google analytics id if you have one and want to use it here
+# Add Google analytics id if you have one and want to use it here 
 google_analytics:
 # See http://nbdev.fast.ai/search for help with adding Search
 google_search:
@@ -63,4 +63,4 @@ plugins:
     - jekyll-remote-theme
     
 remote_theme: fastai/nbdev-jekyll-theme
-baseurl: /FlowNet/
+baseurl: /FRED/

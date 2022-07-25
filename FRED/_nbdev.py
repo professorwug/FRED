@@ -23,8 +23,18 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "directed_cylinder": "01a02b Polar 2-Manifold Toy Datasets.ipynb",
          "directed_swiss_roll": "01a02b Polar 2-Manifold Toy Datasets.ipynb",
          "directed_swiss_roll_uniform": "01a02b Polar 2-Manifold Toy Datasets.ipynb",
-         "directed_swiss_roll_sklearn": "01a02b Polar 2-Manifold Toy Datasets.ipynb",
-         "add_labels": "01b02 Single-Cell Data and RNA Velocity.ipynb",
+         "directed_swiss_roll_delayed": "01a02b Polar 2-Manifold Toy Datasets.ipynb",
+         "directed_one_variable_function": "01a02c Function 1-Manifold Toy Datasets.ipynb",
+         "directed_sine": "01a02c Function 1-Manifold Toy Datasets.ipynb",
+         "directed_sine_ribbon": "01a02c Function 1-Manifold Toy Datasets.ipynb",
+         "directed_sinh": "01a02c Function 1-Manifold Toy Datasets.ipynb",
+         "directed_sinh_branch": "01a02c Function 1-Manifold Toy Datasets.ipynb",
+         "directed_sine_moons": "01a02c Function 1-Manifold Toy Datasets.ipynb",
+         "angle_x": "01a02d Sphere and Torus Toy Datasets.ipynb",
+         "whirlpool": "01a02d Sphere and Torus Toy Datasets.ipynb",
+         "rejection_sample_for_torus": "01a02d Sphere and Torus Toy Datasets.ipynb",
+         "directed_torus": "01a02d Sphere and Torus Toy Datasets.ipynb",
+         "directed_sphere": "01a02d Sphere and Torus Toy Datasets.ipynb",
          "pancreas_rnavelo_load_data": "01b02 Single-Cell Data and RNA Velocity.ipynb",
          "pancreas_rnavelo": "01b02 Single-Cell Data and RNA Velocity.ipynb",
          "pancreas_rnavelo_pcs": "01b02 Single-Cell Data and RNA Velocity.ipynb",
@@ -50,14 +60,14 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "diffusion_coordinates": "02b Diffusion Maps and Distances.ipynb",
          "diffusion_map_from_points": "02b Diffusion Maps and Distances.ipynb",
          "diffusion_map_from_affinities": "02b Diffusion Maps and Distances.ipynb",
-         "directed_neighbors": "02c Flow Neighborhoods.ipynb"}
+         "flow_neighbors": "02c Flow Neighborhoods.ipynb"}
 
 modules = ["graph_datasets.py",
            "datasets.py",
            "data_processing.py"]
 
-doc_url = "https://x.riddle.press/FlowNet/"
+doc_url = "https://x.riddle.press/FRED/"
 
-git_url = "https://github.com/professorwug/FlowNet/tree/master/"
+git_url = "https://github.com/professorwug/FRED/tree/master/"
 
 def custom_doc_links(name): return None
