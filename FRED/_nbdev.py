@@ -62,11 +62,15 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "diffusion_coordinates": "02b Diffusion Maps and Distances.ipynb",
          "diffusion_map_from_points": "02b Diffusion Maps and Distances.ipynb",
          "diffusion_map_from_affinities": "02b Diffusion Maps and Distances.ipynb",
-         "flow_neighbors": "02c Flow Neighborhoods.ipynb"}
+         "flow_neighbors": "02c Flow Neighborhoods.ipynb",
+         "GaussianVectorField": "03b01 Gaussian Vector Field Flow Artist.ipynb",
+         "compute_grid": "03d Grid Sampler.ipynb",
+         "diffusion_matrix_with_grid_points": "03d Grid Sampler.ipynb"}
 
 modules = ["graph_datasets.py",
            "datasets.py",
-           "data_processing.py"]
+           "data_processing.py",
+           "embed.py"]
 
 doc_url = "https://x.riddle.press/FRED/"
 

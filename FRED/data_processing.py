@@ -108,7 +108,7 @@ def affinity_grid_search(X,flow,sigmas, flow_strengths):
 # Cell
 import torch
 import numpy as np
-def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic"):
+def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic", flow_strength= 1):
     if type(X) == torch.Tensor:
         X = X.numpy()
     Dists = distance_matrix(X)
@@ -118,7 +118,7 @@ def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic"):
     # convert back to tensors
     X = torch.Tensor(X)
     flow = torch.Tensor(flow)
-    A = affinity_matrix_from_pointset_to_pointset(X, X, flow, sigma=sigma)
+    A = affinity_matrix_from_pointset_to_pointset(X, X, flow, sigma=sigma, flow_strength=flow_strength)
     return A
 
 # Cell
