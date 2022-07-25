@@ -4,10 +4,10 @@ __all__ = ['xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'direct
            'directed_spiral_delayed', 'generate_prism', 'directed_cylinder', 'directed_swiss_roll',
            'directed_swiss_roll_uniform', 'directed_swiss_roll_delayed', 'directed_one_variable_function',
            'directed_sine', 'directed_sine_ribbon', 'directed_sinh', 'directed_sinh_branch', 'directed_sine_moons',
-           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere',
-           'pancreas_rnavelo_load_data', 'pancreas_rnavelo', 'pancreas_rnavelo_pcs', 'd_rnavelo_load_data', 'd_rnavelo',
-           'd_rnavelo_pcs', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d', 'display_flow_galary',
-           'visualize_edge_index']
+           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere', 'add_labels',
+           'rnavelo', 'rnavelo_pcs', 'pancreas_rnavelo_load_data', 'pancreas_rnavelo', 'pancreas_rnavelo_pcs',
+           'd_rnavelo_load_data', 'd_rnavelo', 'd_rnavelo_pcs', 'plot_directed_2d', 'plot_origin_3d',
+           'plot_directed_3d', 'plot_3d', 'display_flow_galary', 'visualize_edge_index']
 
 # Cell
 # Tilt 2d plane into 3d space
@@ -322,6 +322,47 @@ def directed_sphere(n=2000, r=1, flow_type = 'whirlpool', noise=None):
     else:
         raise NotImplementedError
     return X, flows, labels
+
+# Cell
+
+import scvelo as scv
+import numpy as np
+import torch
+
+def add_labels(clusters):
+    cluster_set = set(clusters)
+    d = {cluster: i for i, cluster in enumerate(cluster_set)}
+    labels = np.array([d[cluster] for cluster in clusters])
+
+    return labels
+
+def rnavelo(adata):
+    #preprocess data and calculate rna velocity
+    scv.pp.filter_and_normalize(adata)
+    scv.pp.moments(adata)
+    scv.tl.velocity(adata, mode='stochastic')
+
+    X = torch.tensor(adata.X.todense())
+    flows = torch.tensor(adata.layers["velocity"])
+    labels = add_labels(adata.obs["clusters"])
+
+    return X, flows, labels
+
+def rnavelo_pcs(adata):
+    scv.pp.filter_and_normalize(adata)
+    scv.pp.moments(adata)
+    scv.tl.velocity(adata, mode='stochastic')
+
+    # calculate velocity pca and display pca plot (2 dimensions)
+    scv.tl.velocity_graph(adata)
+    scv.pl.velocity_embedding_stream(adata, basis='pca')
+
+    X = torch.tensor(adata.obsm["X_pca"])
+    flows = torch.tensor(adata.obsm["velocity_pca"])
+    labels = add_labels(adata.obs["clusters"])
+    n_pcs = X.shape[1]
+
+    return X, flows, labels, n_pcs
 
 # Cell
 
