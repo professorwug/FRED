@@ -143,5 +143,6 @@ checklink/cookies.txt
 
 # data folders
 datasets/
+datasets/email_Eu_network
 data/
 cache/
