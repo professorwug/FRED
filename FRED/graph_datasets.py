@@ -407,13 +407,16 @@ import torch
 def display_heatmap_galary(dataset, ncol=4):
     vizset = []
     for name, data in dataset:
-        order_ind = None if data.y is None else torch.argsort(data.y[:,1])
-        vizset.append((name, data, lambda data, ax: visualize_heatmap(data.edge_index, order_ind, ax=ax), False))
+        vizset.append((name, data, lambda data, ax: visualize_heatmap(
+            data.edge_index,
+            order_ind=None if data.y is None else torch.argsort(data.y[:,-1]),
+            ax=ax
+        ), False))
     display_galary(vizset, ncol)
 
 # Comes from 01c Plotting Utils.ipynb, cell
 def display_graph_galary(dataset, ncol=4):
     vizset = []
     for name, data in dataset:
-        vizset.append((name, data, lambda data, ax: visualize_graph(data, ax=ax), False))
+        vizset.append((name, lambda ax: visualize_graph(data, ax=ax), False))
     display_galary(vizset, ncol)
