@@ -16,7 +16,6 @@ from .embed import ManifoldFlowEmbedder
 import ipywidgets as widgets
 import base64
 import matplotlib.pyplot as plt
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Trainer(object):
@@ -24,27 +23,27 @@ class Trainer(object):
         self,
         FE,
         loss_weights,
-        dataloader,
+        title,
+        visualization_functions,
         device=device,
-        title="Vanilla MFE",
-        visualization_functions=[save_embedding_visualization, visualize_points],
     ):
         self.vizfiz = visualization_functions
         self.loss_weights = loss_weights
         self.FE = FE.to(device)
         self.losses = None
-        self.dataloader = dataloader
         self.title = title
         self.epochs_between_visualization = 10
         self.timestamp = datetime.datetime.now().isoformat()
         os.mkdir(f"visualizations/{self.timestamp}")
         self.optim = torch.optim.Adam(self.FE.parameters())
         self.scheduler = None
+        self.device = device
+
+    def fit(self, dataloader, n_epochs=100):
         # for plotting
+        self.dataloader = dataloader
         self.labels = dataloader.dataset.labels
         self.X = dataloader.dataset.X
-
-    def fit(self, n_epochs=100):
         for epoch_num in trange(n_epochs):
             for data in self.dataloader:
                 self.optim.zero_grad()
@@ -52,9 +51,10 @@ class Trainer(object):
                 if self.scheduler is not None:
                     self.loss_weights = self.scheduler(self.loss_weights)
                 # have model compute losses, compile them into cost using loss weights
-                data['X'] = data['X'].to(device)
-                data['P'] = data['P'].to(device)
-                data['precomputed distances'] = data['precomputed distances'].to(device)
+                data['X'] = data['X'].to(self.device)
+                data['P'] = data['P'].to(self.device)
+                print("X is on",data['X'].device)
+                data['precomputed distances'] = data['precomputed distances'].to(self.device)
                 losses = self.FE(data, self.loss_weights)
                 cost = self.weight_losses(losses)
                 # backpropogate and update model
