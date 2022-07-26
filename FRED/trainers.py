@@ -53,7 +53,6 @@ class Trainer(object):
                 # have model compute losses, compile them into cost using loss weights
                 data['X'] = data['X'].to(self.device)
                 data['P'] = data['P'].to(self.device)
-                print("X is on",data['X'].device)
                 data['precomputed distances'] = data['precomputed distances'].to(self.device)
                 losses = self.FE(data, self.loss_weights)
                 cost = self.weight_losses(losses)
@@ -67,7 +66,7 @@ class Trainer(object):
             # run visualizations, if needed
             if epoch_num % self.epochs_between_visualization == 0:
                 title = f"{self.timestamp}/{self.title} Epoch {epoch_num:03d}"
-                emb_X = self.FE.embedder(self.X)
+                emb_X = self.FE.embedder(self.X.to(device))
                 flowArtist = self.FE.flowArtist
                 self.visualize(emb_X, flowArtist, self.losses, title)
         # Save most recent embedded points and flow artist for running visualizations
