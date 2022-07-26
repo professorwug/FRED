@@ -19,7 +19,6 @@ import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
 class Trainer(object):
     def __init__(
         self,
