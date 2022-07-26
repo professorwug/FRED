@@ -44,7 +44,7 @@ entries:
       url: 01a02d Sphere and Torus Toy Datasets.html
     - output: web,pdf
       title: Title
-      url: 03d Grid Sampler.html
+      url: 03c Loss Functions.html
     - output: web,pdf
       title: 01b02 RNA Velocity Data
       url: 01b02 Single-Cell Data and RNA Velocity.html
@@ -66,6 +66,12 @@ entries:
     - output: web,pdf
       title: 02d Flow Datasets
       url: 02d Flow Datasets.html
+    - output: web,pdf
+      title: 03b01 Gaussian Vector Field Flow Artist
+      url: 03b01 Gaussian Vector Field Flow Artist.html
+    - output: web,pdf
+      title: 03d Grid Sampler
+      url: 03d Grid Sampler.html
     output: web
     title: FRED
   output: web
