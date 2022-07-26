@@ -24,6 +24,7 @@ class Trainer(object):
     def __init__(self, dataloader, device=device):
         self.vizfiz = [
             save_embedding_visualization,
+            visualize_points
         ]
         self.loss_weights = {
             "reconstruction": 1,
