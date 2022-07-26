@@ -1,3 +1,6 @@
+# ignore anything saved in the visualizations folder
+visualizations/*
+# bad stuff
 .jekyll-cache/
 Gemfile.lock  
 *.bak

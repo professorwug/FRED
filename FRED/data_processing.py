@@ -4,7 +4,8 @@ __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset', 'a
            'flashlight_affinity_matrix', 'make_sparse_safe', 'distance_matrix', 'anisotropic_kernel',
            'adaptive_anisotropic_kernel', 'zero_negligible_thresholds', 'diffusion_matrix',
            'diffusion_matrix_from_points', 'diffusion_coordinates', 'diffusion_map_from_points',
-           'diffusion_map_from_affinities', 'plot_3d', 'flow_neighbors']
+           'diffusion_map_from_affinities', 'plot_3d', 'flow_neighbors', 'ManifoldWithVectorField',
+           'dataloader_from_ndarray']
 
 # Cell
 import torch
@@ -340,3 +341,104 @@ def flow_neighbors(num_nodes, P_graph, n_neighbors=5):
     row = torch.arange(num_nodes).repeat_interleave(n_neighbors).to(P_graph.device)
     col = neighbors.flatten().to(P_graph.device)
     return torch.stack((row, col))
+
+# Cell
+import torch
+from torch.utils.data import Dataset
+import matplotlib.pyplot as plt
+import numpy as np
+import torch.nn.functional as F
+from .data_processing import flashlight_affinity_matrix, diffusion_map_from_affinities, flow_neighbors
+class ManifoldWithVectorField(Dataset):
+    """
+    Dataset object to be used with FRED for pointcloud and velocity input data.
+    Takes np.arrays for X (points) and velocities (velocity vectors per point).
+    For each item retrieved, returns a neighborhood around that point (based on local euclidean neighbors) containing local affinities
+
+    """
+    def __init__(self, X, velocities, labels, sigma="automatic", prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors"):
+        # Step 0: Convert data into tensors
+        self.X = torch.tensor(X).float()
+        self.velocities = torch.tensor(velocities).float()
+        self.labels = labels
+        self.n_neighbors = n_neighbors
+        self.n_nodes = self.X.shape[0]
+        self.minibatch_size = minibatch_size
+        # Step 1. Build graph on input data, using flashlight kernel
+        self.A = flashlight_affinity_matrix(self.X, self.velocities, sigma = sigma)
+        self.P_graph = F.normalize(self.A, p=1, dim=1)
+        # visualize affinity matrix
+        plt.imshow(self.A.numpy())
+
+        # Step 2. Take a diffusion map of the data
+        # These will become our 'precomputed distances' which we use to regularize the embedding
+        if prior_embedding == "diffusion map":
+            P_graph_symmetrized = self.P_graph + self.P_graph.T
+            diff_map = diffusion_map_from_affinities(
+                P_graph_symmetrized, t=t_dmap, plot_evals=False
+            )
+            self.diff_coords = diff_map[:, :dmap_coords_to_use]
+            self.diff_coords = self.diff_coords.real
+            self.diff_coords = torch.tensor(self.diff_coords.copy()).float()
+            self.precomputed_distances = torch.cdist(self.diff_coords, self.diff_coords)
+            # scale distances between 0 and 1
+            self.precomputed_distances = 2 * (
+                self.precomputed_distances / torch.max(self.precomputed_distances)
+            )
+            self.precomputed_distances = (
+                self.precomputed_distances.detach()
+            )  # no need to have gradients from this operation
+        # Step 3: This returns a sparse representation of the flow neighborhoods, in the form of two tensors: row, col. The numbers in row specify the index, and the adjacent entries in col are the neighbors of that index.
+        if nbhd_strategy == "flow neighbors":
+            self.neighborhoods = flow_neighbors(self.n_nodes, self.P_graph, self.n_neighbors)
+    def neighbors_from_point(self, idx):
+        # Returns list of idxs of neighbors of the given idx
+        row, col = self.neighborhoods
+        idxs = torch.squeeze(torch.nonzero(row == idx))
+        return col[idxs]
+    def __len__(self):
+        return len(self.X)
+    def __getitem__(self, idx):
+        nbhd_idxs = self.neighbors_from_point(idx)
+        random_idxs = torch.tensor(np.random.choice(np.arange(self.n_nodes), size=(self.minibatch_size))).long()
+        minibatch_idxs = torch.concat([torch.tensor([idx]), nbhd_idxs, random_idxs])
+        # Compute miniature diffusion matrix
+        A_batch = self.A[minibatch_idxs][:,minibatch_idxs]
+        P_batch = F.normalize(A_batch, p=1, dim=1)
+        # Get actual points
+        X_batch = self.X[minibatch_idxs]
+        # Get subset of distances
+        mini_precomputed_distances = self.precomputed_distances[minibatch_idxs][:,minibatch_idxs]
+        # compute sparse representation of neighborhood around idx
+        row = torch.zeros(self.n_neighbors).long()
+        col = torch.arange(1,self.n_neighbors+1).long()
+        neighbors = torch.vstack(
+            [row, col]
+        )
+
+        # Embed these into a dictionary for easy cross reference
+        return_dict = {
+            "P":P_batch,
+            "X":X_batch,
+            "num flow neighbors":self.n_neighbors,
+            "precomputed distances": mini_precomputed_distances,
+            "neighbors":neighbors,
+            "labels":self.labels[minibatch_idxs],
+        }
+        return return_dict
+    def all_data(self):
+        return_dict = {
+            "P":self.P_graph,
+            "X":self.X,
+            "num flow neighbors":self.n_neighbors,
+            "precomputed distances":self.precomputed_distances,
+            "neighbors": self.neighborhood,
+        }
+        return return_dict
+
+# Cell
+from torch.utils.data import DataLoader
+def dataloader_from_ndarray(X, flow, labels):
+    ds = ManifoldWithVectorField(X, flow, labels)
+    dataloader = DataLoader(ds, batch_size=None)
+    return dataloader
