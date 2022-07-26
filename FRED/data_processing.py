@@ -440,5 +440,5 @@ class ManifoldWithVectorField(Dataset):
 from torch.utils.data import DataLoader
 def dataloader_from_ndarray(X, flow, labels):
     ds = ManifoldWithVectorField(X, flow, labels)
-    dataloader = DataLoader(ds, batch_size=None)
+    dataloader = DataLoader(ds, batch_size=None, shuffle=True)
     return dataloader
