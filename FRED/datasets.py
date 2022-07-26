@@ -4,8 +4,9 @@ __all__ = ['xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'direct
            'directed_spiral_delayed', 'generate_prism', 'directed_cylinder', 'directed_swiss_roll',
            'directed_swiss_roll_uniform', 'directed_swiss_roll_delayed', 'directed_one_variable_function',
            'directed_sine', 'directed_sine_ribbon', 'directed_sinh', 'directed_sinh_branch', 'directed_sine_moons',
-           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere', 'add_labels',
-           'rnavelo', 'rnavelo_pcs', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d',
+           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere',
+           'rnavelo_find_cluster_key', 'rnavelo_add_labels', 'rnavelo_preprocess', 'rnavelo', 'rnavelo_pcs',
+           'rnavelo_plot_pca', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d',
            'visualize_edge_index', 'display_galary', 'display_flow_galary']
 
 # Cell
@@ -674,40 +675,65 @@ def directed_sphere(n=2000, r=1, flow_type = 'whirlpool', noise=None):
 import scvelo as scv
 import torch
 
-def add_labels(clusters):
-    cluster_set = set(clusters)
-    d = {cluster: i for i, cluster in enumerate(cluster_set)}
-    labels = torch.tensor([d[cluster] for cluster in clusters])
+def rnavelo_find_cluster_key(adata):
+    obs_keys = adata.obs.keys()
+    possible_keys = ["clusters", "celltype", "Clusters", "true_t"]
+    for key in possible_keys:
+        if key in obs_keys:
+            return key
+    return None
+
+def rnavelo_add_labels(adata):
+    cluster_key = rnavelo_find_cluster_key(adata)
+    if cluster_key in ["clusters", "celltype"]:
+        clusters = adata.obs[cluster_key]
+        cluster_set = set(clusters)
+        d = {cluster: i for i, cluster in enumerate(cluster_set)}
+        labels = torch.tensor([d[cluster] for cluster in clusters])
+
+    elif cluster_key in ["Clusters", "true_t"]:
+        labels = torch.tensor(adata.obs[cluster_key])
 
     return labels
 
-def rnavelo(adata):
+def rnavelo_preprocess(adata):
     #preprocess data and calculate rna velocity
     scv.pp.filter_and_normalize(adata)
     scv.pp.moments(adata)
     scv.tl.velocity(adata, mode='stochastic')
 
-    X = torch.tensor(adata.X.todense())
+
+def rnavelo(adata):
+    rnavelo_preprocess(adata)
+
+    X = torch.tensor(adata.X) if type(adata.X) is np.ndarray else torch.tensor(adata.X.todense())
     flows = torch.tensor(adata.layers["velocity"])
-    labels = add_labels(adata.obs["clusters"])
+    labels = rnavelo_add_labels(adata)
 
     return X, flows, labels
 
 def rnavelo_pcs(adata):
-    scv.pp.filter_and_normalize(adata)
-    scv.pp.moments(adata)
-    scv.tl.velocity(adata, mode='stochastic')
+    rnavelo_preprocess(adata)
+
+    # calculate pca embedding
+    if not(hasattr(adata, "obsm") and "X_pca" in adata.obsm.keys()):
+        scv.pp.pca(adata)
 
     # calculate velocity pca and display pca plot (2 dimensions)
     scv.tl.velocity_graph(adata)
-    scv.pl.velocity_embedding_stream(adata, basis='pca')
+    scv.tl.velocity_embedding(adata, basis='pca', direct_pca_projection=False)
 
-    X = torch.tensor(adata.obsm["X_pca"])
-    flows = torch.tensor(adata.obsm["velocity_pca"])
-    labels = add_labels(adata.obs["clusters"])
+    X = torch.tensor(adata.obsm["X_pca"].copy())
+    flows = torch.tensor(adata.obsm["velocity_pca"].copy())
+    labels = rnavelo_add_labels(adata)
     n_pcs = X.shape[1]
 
     return X, flows, labels, n_pcs
+
+def rnavelo_plot_pca(adata):
+    rnavelo_pcs(adata)
+    cluster_key = rnavelo_find_cluster_key(adata)
+    scv.pl.velocity_embedding_stream(adata, basis='pca', color=cluster_key)
 
 # Cell
 import matplotlib.pyplot as plt
@@ -843,5 +869,7 @@ def display_galary(vizset, ncol=4):
 def display_flow_galary(dataset, ncol=4):
     vizset = []
     for name, data in dataset:
-        vizset.append((name, data, lambda data, ax: plot_directed_3d(data[0], data[1], data[2], mask_prob=0.5, ax=ax), True))
+        vizset.append((name, data, lambda data, ax: plot_directed_3d(
+            data[0], data[1], data[2], mask_prob=0.5, ax=ax
+        ), True))
     display_galary(vizset, ncol)
