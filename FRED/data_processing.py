@@ -109,7 +109,7 @@ def affinity_grid_search(X,flow,sigmas, flow_strengths):
 # Cell
 import torch
 import numpy as np
-def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic", flow_strength= 1):
+def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic",flow_strength= 1):
     if type(X) == torch.Tensor:
         X = X.numpy()
     Dists = distance_matrix(X)
@@ -356,7 +356,7 @@ class ManifoldWithVectorField(Dataset):
     For each item retrieved, returns a neighborhood around that point (based on local euclidean neighbors) containing local affinities
 
     """
-    def __init__(self, X, velocities, labels, sigma="automatic", prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors"):
+    def __init__(self, X, velocities, labels, sigma="automatic", k = 10, prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors"):
         # Step 0: Convert data into tensors
         self.X = torch.tensor(X).float()
         self.velocities = torch.tensor(velocities).float()
@@ -365,10 +365,11 @@ class ManifoldWithVectorField(Dataset):
         self.n_nodes = self.X.shape[0]
         self.minibatch_size = minibatch_size
         # Step 1. Build graph on input data, using flashlight kernel
-        self.A = flashlight_affinity_matrix(self.X, self.velocities, sigma = sigma)
+        self.A = flashlight_affinity_matrix(self.X, self.velocities, sigma = sigma, k = k)
         self.P_graph = F.normalize(self.A, p=1, dim=1)
         # visualize affinity matrix
         plt.imshow(self.A.numpy())
+        plt.show()
 
         # Step 2. Take a diffusion map of the data
         # These will become our 'precomputed distances' which we use to regularize the embedding
@@ -380,6 +381,10 @@ class ManifoldWithVectorField(Dataset):
             self.diff_coords = diff_map[:, :dmap_coords_to_use]
             self.diff_coords = self.diff_coords.real
             self.diff_coords = torch.tensor(self.diff_coords.copy()).float()
+            # visualize diffusion map, to let us know how good the sigma parameters were
+            plt.scatter(self.diff_coords[:,0], self.diff_coords[:,1], c=self.labels)
+            plt.show()
+            # compute diffusion distances
             self.precomputed_distances = torch.cdist(self.diff_coords, self.diff_coords)
             # scale distances between 0 and 1
             self.precomputed_distances = 2 * (
@@ -438,7 +443,7 @@ class ManifoldWithVectorField(Dataset):
 
 # Cell
 from torch.utils.data import DataLoader
-def dataloader_from_ndarray(X, flow, labels):
-    ds = ManifoldWithVectorField(X, flow, labels)
+def dataloader_from_ndarray(X, flow, labels, sigma = "automatic", k = 10):
+    ds = ManifoldWithVectorField(X, flow, labels, sigma = sigma, k = k)
     dataloader = DataLoader(ds, batch_size=None, shuffle=True)
     return dataloader
