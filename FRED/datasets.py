@@ -730,10 +730,10 @@ def rnavelo_pcs(adata):
 
     return X, flows, labels, n_pcs
 
-def rnavelo_plot_pca(adata):
+def rnavelo_plot_pca(adata, ax=None, show=True):
     rnavelo_pcs(adata)
     cluster_key = rnavelo_find_cluster_key(adata)
-    scv.pl.velocity_embedding_stream(adata, basis='pca', color=cluster_key)
+    scv.pl.velocity_embedding_stream(adata, basis='pca', color=cluster_key, ax=ax, show=show)
 
 # Cell
 import matplotlib.pyplot as plt
@@ -855,6 +855,7 @@ def visualize_edge_index(edge_index, order_ind=None, cmap = "copper", ax=None):
 
 # Cell
 import matplotlib.pyplot as plt
+
 def display_galary(vizset, ncol=4):
     nviz = len(vizset)
     nrow = int(np.ceil(nviz/ncol))
