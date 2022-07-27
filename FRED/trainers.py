@@ -32,7 +32,7 @@ class Trainer(object):
         self.FE = FE.to(device)
         self.losses = None
         self.title = title
-        self.epochs_between_visualization = 10
+        self.epochs_between_visualization = 1
         self.timestamp = datetime.datetime.now().isoformat()
         os.mkdir(f"visualizations/{self.timestamp}")
         self.optim = torch.optim.Adam(self.FE.parameters())
@@ -66,11 +66,11 @@ class Trainer(object):
             # run visualizations, if needed
             if epoch_num % self.epochs_between_visualization == 0:
                 title = f"{self.timestamp}/{self.title} Epoch {epoch_num:03d}"
-                emb_X = self.FE.embedder(self.X.to(device))
+                emb_X = self.FE.embedder(self.X.to(self.device))
                 flowArtist = self.FE.flowArtist
                 self.visualize(emb_X, flowArtist, self.losses, title)
         # Save most recent embedded points and flow artist for running visualizations
-        self.embedded_points = self.FE.embedder(self.dataloader.dataset.X)
+        self.embedded_points = self.FE.embedder(self.dataloader.dataset.X.to(self.device))
         self.flow_artist = flowArtist
         self.labels = self.dataloader.dataset.labels
 
