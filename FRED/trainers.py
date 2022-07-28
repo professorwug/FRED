@@ -33,7 +33,9 @@ class Trainer(object):
         self.losses = None
         self.title = title
         self.epochs_between_visualization = 1
-        self.timestamp = datetime.datetime.now().isoformat()
+        self.timestamp = datetime.datetime.now().isoformat().replace(":",".")
+        if not os.path.exists("visualizations"):
+            os.mkdir("visualizations")
         os.mkdir(f"visualizations/{self.timestamp}")
         self.optim = torch.optim.Adam(self.FE.parameters())
         self.scheduler = None
@@ -132,7 +134,7 @@ class Trainer(object):
 import torch
 from .embed import compute_grid
 
-device = torch.device("cuda" if torch.has_cuda else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def visualize_points(
