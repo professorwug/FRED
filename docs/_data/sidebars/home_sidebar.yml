@@ -44,7 +44,7 @@ entries:
       url: 01a02d Sphere and Torus Toy Datasets.html
     - output: web,pdf
       title: Title
-      url: 03c Loss Functions.html
+      url: 04d FRED without Trainer.html
     - output: web,pdf
       title: 01b02 RNA Velocity Data
       url: 01b02 Single-Cell Data and RNA Velocity.html
@@ -61,17 +61,82 @@ entries:
       title: 02b Diffusion Maps and Distances
       url: 02b Diffusion Maps and Distances.html
     - output: web,pdf
+      title: Diffusion Maps on Manifolds with Flow
+      url: 02b01 Symmetrized Flow-based Diffusion Map.html
+    - output: web,pdf
       title: 02c Flow Neighborhoods
       url: 02c Flow Neighborhoods.html
     - output: web,pdf
       title: 02d Flow Datasets
       url: 02d Flow Datasets.html
     - output: web,pdf
+      title: 03 Embedder
+      url: 03 Embedder.html
+    - output: web,pdf
+      title: Autoencoder
+      url: 03a Autoencoder.html
+    - output: web,pdf
+      title: Flow Artist
+      url: 03b Flow Artist.html
+    - output: web,pdf
       title: 03b01 Gaussian Vector Field Flow Artist
       url: 03b01 Gaussian Vector Field Flow Artist.html
     - output: web,pdf
+      title: 03c Loss functions
+      url: 03c Loss Functions.html
+    - output: web,pdf
+      title: 03c01 Diffusion Map MSE
+      url: 03c01 Diffusion Map MSE.html
+    - output: web,pdf
+      title: 03c02 Flow Neighbor MSE
+      url: 03c02 Flow Neighbor MSE.html
+    - output: web,pdf
+      title: 03c03 Smoothness
+      url: 03c03 Smoothness.html
+    - output: web,pdf
+      title: 03c04 KL Divergence
+      url: 03c04 KL Divergence.html
+    - output: web,pdf
+      title: 03e Flow Prediction Network
+      url: 03d Flow Prediction Embedder.html
+    - output: web,pdf
       title: 03d Grid Sampler
       url: 03d Grid Sampler.html
+    - output: web,pdf
+      title: 03e Investigations in Directed Diffusions
+      url: 03e Investigations in directed diffusion.html
+    - output: web,pdf
+      title: 04 Flow Embedder Trainers
+      url: 04 Trainer.html
+    - output: web,pdf
+      title: 04a Loss Scheduling Utils
+      url: 04a Scheduling.html
+    - output: web,pdf
+      title: 04b Visualizations for Training
+      url: 04b Visualizations for Training.html
+    - output: web,pdf
+      title: 04c Flavors of FRED
+      url: 04c Flavors of FRED.html
+    - output: web,pdf
+      title: '04c01 Trainer: Flow Neighbor Loss and Diffusion Map Regularization'
+      url: 04c01 Flow Neighbor Loss and Diffusion Map Regularization.html
+    - output: web,pdf
+      title: '04c02 Trainer: Flow Neighbor Loss and Diffusion Map Regularization on
+        Spiral'
+      url: 04c02 Flow Neighbor Loss and Diffusion Map Regularization on Spiral.html
+    - output: web,pdf
+      title: '04c01a Trainer: Flow Neighbor Loss and Diffusion Map Regularization
+        on Branch'
+      url: 04c03 Flow Neighbor Loss and Diffusion Map Regularization on Branch.html
+    - output: web,pdf
+      title: Experiments
+      url: 05 Experiments.html
+    - output: web,pdf
+      title: Initial Toy Dataset Experiments with FRED
+      url: 05a Initial Experiments with FRED.html
+    - output: web,pdf
+      title: 05b Toy Dataset Benchmarker
+      url: 05b Toy Dataset Benchmarker.html
     output: web
     title: FRED
   output: web

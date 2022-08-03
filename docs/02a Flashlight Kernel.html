@@ -93,7 +93,7 @@ $$k(x_i,x_j) = \exp\left[\frac{-\left(||x_j - x_i||_2 + \beta \cdot \left(||v_i|
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="affinity_from_flow" class="doc_header"><code>affinity_from_flow</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L14" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_from_flow</code>(<strong><code>flow</code></strong>, <strong><code>directions_array</code></strong>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>, <strong><code>sigma</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="affinity_from_flow" class="doc_header"><code>affinity_from_flow</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L15" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_from_flow</code>(<strong><code>flow</code></strong>, <strong><code>directions_array</code></strong>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>, <strong><code>sigma</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 <p>Compute probabilities of transition in the given directions based on the flow.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>flow : torch tensor of shape n_points x n_dims
@@ -132,7 +132,7 @@ returns (n_points)</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="affinity_matrix_from_pointset_to_pointset" class="doc_header"><code>affinity_matrix_from_pointset_to_pointset</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L59" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_matrix_from_pointset_to_pointset</code>(<strong><code>pointset1</code></strong>, <strong><code>pointset2</code></strong>, <strong><code>flow</code></strong>, <strong><code>n_neighbors</code></strong>=<em><code>None</code></em>, <strong><code>sigma</code></strong>=<em><code>0.5</code></em>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="affinity_matrix_from_pointset_to_pointset" class="doc_header"><code>affinity_matrix_from_pointset_to_pointset</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L60" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_matrix_from_pointset_to_pointset</code>(<strong><code>pointset1</code></strong>, <strong><code>pointset2</code></strong>, <strong><code>flow</code></strong>, <strong><code>n_neighbors</code></strong>=<em><code>None</code></em>, <strong><code>sigma</code></strong>=<em><code>0.5</code></em>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 <p>Compute affinity matrix between the points of pointset1 and pointset2, using the provided flow.</p>
 <h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>pointset1 : torch tensor, n1 x d
@@ -391,7 +391,7 @@ Affinity matrix: torch tensor of shape n1 x n2</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="affinity_grid_search" class="doc_header"><code>affinity_grid_search</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L96" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_grid_search</code>(<strong><code>X</code></strong>, <strong><code>flow</code></strong>, <strong><code>sigmas</code></strong>, <strong><code>flow_strengths</code></strong>)</p>
+<h4 id="affinity_grid_search" class="doc_header"><code>affinity_grid_search</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L97" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>affinity_grid_search</code>(<strong><code>X</code></strong>, <strong><code>flow</code></strong>, <strong><code>sigmas</code></strong>, <strong><code>flow_strengths</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -472,7 +472,7 @@ Affinity matrix: torch tensor of shape n1 x n2</p>
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="flashlight_affinity_matrix" class="doc_header"><code>flashlight_affinity_matrix</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L111" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>flashlight_affinity_matrix</code>(<strong><code>X</code></strong>, <strong><code>flow</code></strong>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>sigma</code></strong>=<em><code>'automatic'</code></em>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>)</p>
+<h4 id="flashlight_affinity_matrix" class="doc_header"><code>flashlight_affinity_matrix</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/data_processing.py#L112" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>flashlight_affinity_matrix</code>(<strong><code>X</code></strong>, <strong><code>flow</code></strong>, <strong><code>k</code></strong>=<em><code>10</code></em>, <strong><code>sigma</code></strong>=<em><code>'automatic'</code></em>, <strong><code>flow_strength</code></strong>=<em><code>1</code></em>)</p>
 </blockquote>
 
 </div>

@@ -450,9 +450,7 @@ class ManifoldFlowEmbedder(torch.nn.Module):
         # Row normalize these probabilities by indx (construct)
 
         # Loop through each t and compute a weighted multiscale loss
-        for i, t in enumerate(self.ts):
-
-
+        # for i, t in enumerate(self.ts):
 
         self.embedded_flows = self.flowArtist(self.embedded_points)
         losses = self.loss(data, loss_weights)
