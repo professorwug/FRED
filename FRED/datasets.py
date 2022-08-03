@@ -738,8 +738,7 @@ def rnavelo_plot_pca(adata, ax=None, show=True):
 # Cell
 import matplotlib.pyplot as plt
 
-
-def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None):
+def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None, save = False, title = "", filename = ""):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     if ax is None:
@@ -749,9 +748,12 @@ def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=No
     mask = np.random.rand(num_nodes) > mask_prob
     ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=alpha_arrows)
     ax.set_aspect("equal")
+    ax.set_title(title)
     if ax is None:
         plt.show()
-
+    if save:
+        plt.savefig(filename)
+        plt.close()
 
 # Cell
 def plot_origin_3d(ax, xlim, ylim, zlim):
@@ -760,7 +762,7 @@ def plot_origin_3d(ax, xlim, ylim, zlim):
     ax.plot([0, 0], [0, 0], zlim, color="k", alpha=0.5)
 
 
-def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False, ax=None):
+def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False, ax=None, save = False, filename = ""):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     mask = np.random.rand(num_nodes) > mask_prob
@@ -785,8 +787,15 @@ def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin
         alpha=alpha_arrows,
         length=0.5,
     )
+    lim = np.max(np.linalg.norm(X, axis=1))
+    ax.axes.set_xlim3d(left=-lim, right=lim)
+    ax.axes.set_ylim3d(bottom=-lim, top=lim)
+    ax.axes.set_zlim3d(bottom=-lim, top=lim)
     if ax is None:
         plt.show()
+    if save:
+        plt.savefig(filename)
+        plt.close()
 
 
 # Cell
