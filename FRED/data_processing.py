@@ -347,6 +347,7 @@ import torch
 from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.neighbors import NearestNeighbors
 import torch.nn.functional as F
 from .data_processing import flashlight_affinity_matrix, diffusion_map_from_affinities, flow_neighbors
 class ManifoldWithVectorField(Dataset):
@@ -362,6 +363,7 @@ class ManifoldWithVectorField(Dataset):
         self.velocities = torch.tensor(velocities).float()
         self.labels = labels
         self.n_neighbors = n_neighbors
+        self.nbhd_strategy = nbhd_strategy
         self.n_nodes = self.X.shape[0]
         self.minibatch_size = minibatch_size
         # Step 1. Build graph on input data, using flashlight kernel
@@ -373,9 +375,9 @@ class ManifoldWithVectorField(Dataset):
         # Step 2. Take a diffusion map of the data
         # These will become our 'precomputed distances' which we use to regularize the embedding
         if prior_embedding == "diffusion map":
-            P_graph_symmetrized = self.P_graph + self.P_graph.T
+            self.P_graph_symmetrized = self.P_graph + self.P_graph.T
             diff_map = diffusion_map_from_affinities(
-                P_graph_symmetrized, t=t_dmap, plot_evals=False
+                self.P_graph_symmetrized, t=t_dmap, plot_evals=False
             )
             self.diff_coords = diff_map[:, :dmap_coords_to_use]
             self.diff_coords = self.diff_coords.real
@@ -391,15 +393,27 @@ class ManifoldWithVectorField(Dataset):
         # Step 3: This returns a sparse representation of the flow neighborhoods, in the form of two tensors: row, col. The numbers in row specify the index, and the adjacent entries in col are the neighbors of that index.
         if nbhd_strategy == "flow neighbors":
             self.neighborhoods = flow_neighbors(self.n_nodes, self.P_graph, self.n_neighbors)
+        if nbhd_strategy == "euclidean neighbors":
+            # Get points with nearest diffusion distances, based on above computation with dmap on symmetrized
+            # directed diffusion matrix
+            Neighbors = NearestNeighbors(n_neighbors=self.n_neighbors).fit(self.X)
+            dists, indxs = Neighbors.kneighbors()
+            self.neighborhoods = torch.tensor(indxs)
     def neighbors_from_point(self, idx):
-        # Returns list of idxs of neighbors of the given idx
-        row, col = self.neighborhoods
-        idxs = torch.squeeze(torch.nonzero(row == idx))
-        return col[idxs]
+        if self.nbhd_strategy == "flow neighbors":
+            # Returns list of idxs of neighbors of the given idx
+            row, col = self.neighborhoods
+            idxs = torch.squeeze(torch.nonzero(row == idx))
+            return col[idxs]
+        elif self.nbhd_strategy == "euclidean neighbors":
+            return self.neighborhoods[idx]
+
     def __len__(self):
         return len(self.X)
     def __getitem__(self, idx):
+        # Get the neighborhood around the central point
         nbhd_idxs = self.neighbors_from_point(idx)
+        # And sample random points -- for negative sampling loss
         random_idxs = torch.tensor(np.random.choice(np.arange(self.n_nodes), size=(self.minibatch_size))).long()
         minibatch_idxs = torch.concat([torch.tensor([idx]), nbhd_idxs, random_idxs])
         # Compute miniature diffusion matrix
@@ -415,7 +429,6 @@ class ManifoldWithVectorField(Dataset):
         neighbors = torch.vstack(
             [row, col]
         )
-
         # Embed these into a dictionary for easy cross reference
         return_dict = {
             "P":P_batch,

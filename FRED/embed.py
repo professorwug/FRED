@@ -2,12 +2,13 @@
 
 __all__ = ['ManifoldFlowEmbedder', 'auto_encoder', 'flow_artist', 'GaussianVectorField', 'precomputed_distance_loss',
            'flow_neighbor_loss', 'anisotropic_kernel', 'smoothness_of_vector_field', 'kl_divergence_loss',
-           'FlowPredictionDataset', 'ManifoldFlowEmbedder', 'compute_grid', 'diffusion_matrix_with_grid_points',
+           'FlowPredictionDataset', 'FlowPredictionEmbedder', 'compute_grid', 'diffusion_matrix_with_grid_points',
            'flow_gif']
 
 # Cell
 import torch
 import torch.nn as nn
+from .data_processing import affinity_matrix_from_pointset_to_pointset
 
 
 class ManifoldFlowEmbedder(torch.nn.Module):
@@ -69,6 +70,11 @@ class ManifoldFlowEmbedder(torch.nn.Module):
                 use_grid=self.smoothness_grid,
             )
             losses["smoothness"] = smoothness_loss
+
+        if loss_weights["kld"] != 0:
+            A = affinity_matrix_from_pointset_to_pointset(self.embedded_points, self.embedded_points, self.embedded_flows, sigma=0.5, flow_strength=1)
+            P = torch.nn.functional.normalize(A, p=1, dim=1)
+            losses['kld'] = kl_divergence_loss(P, data["P"])
         return losses
 
     def forward(self, data, loss_weights):
@@ -200,8 +206,8 @@ def precomputed_distance_loss(precomputed_distances, embedded_points):
 # Cell
 def flow_neighbor_loss(neighbors, embedded_points, embedded_flows):
   row, col = neighbors
-  directions = embedded_points[col,:] - embedded_points[row,:]
-  flows = embedded_flows[row,:]
+  directions = (embedded_points[col] - embedded_points[row])
+  flows = embedded_flows[row]
   loss = torch.norm(directions - flows)**2
   return loss
 
@@ -257,14 +263,13 @@ def smoothness_of_vector_field(embedded_points, vector_field_function, device, u
     return total_smoothness
 
 # Cell
-def kl_divergence_loss(KLD, P_graph, P_embedding):
+def kl_divergence_loss(P_embedding, P_graph):
     P_embedding = torch.log(P_embedding)
-    if KLD.log_target:
-        P_graph = torch.log(P_graph)
     if P_embedding.is_sparse:
         P_embedding = P_embedding.to_dense()
         P_graph = P_graph.to_dense()
-    loss = KLD(P_embedding, P_graph)
+    loss = torch.nn.functional.kl_div(P_embedding, P_graph, reduction='batchmean')
+    # print("kld loss",loss)
     return loss
 
 # Cell
@@ -368,8 +373,10 @@ class FlowPredictionDataset(Dataset):
         # print("hc is",happy_couple)
         # Construct diffusion probabilities into a list of tensors
         probs = torch.zeros(len(self.P_graph_ts))
+        transition_to = torch.zeros(len(self.P_graph_ts))
         for i, Pt in enumerate(self.P_graph_ts):
             probs[i] = Pt[happy_couple[0]][happy_couple[1]]
+            transition_to[i] = (probs[i] > 0.5).to(int)
         # print("got Pt probs just fine")
         # print("first sum worked")
         # Fetch points from X
@@ -379,16 +386,18 @@ class FlowPredictionDataset(Dataset):
         return_dict = {
             "idxs":happy_couple,
             "probs":probs,
+            "transition_to": transition_to,
             "distance":self.precomputed_distances[happy_couple[0]][happy_couple[1]],
-            "points":points,
+            "X":points,
         }
         return return_dict
 
 # Cell
 import torch
 import torch.nn as nn
+from .data_processing import affinity_matrix_from_pointset_to_pointset
 
-class ManifoldFlowEmbedder(torch.nn.Module):
+class FlowPredictionEmbedder(torch.nn.Module):
     def __init__(
         self,
         embedding_dimension=2,
@@ -407,17 +416,19 @@ class ManifoldFlowEmbedder(torch.nn.Module):
         self.flow_strength = flow_strength
         self.smoothness_grid = smoothness_grid
         self.ts = ts
+        self.t_weights = [1,0.5,0.25,0.125]
         # Initialize autoencoder and flow artist
 
-        self.embedder, self.decoder = auto_encoder(embedder_shape, device=self.device)
+        # self.embedder, self.decoder = auto_encoder(embedder_shape, device=self.device)
+        self.embedder = fixed_diffmap_embedder
         self.flowArtist = flow_artist(dim=self.embedding_dimension, device=self.device)
         # # training ops
         # self.KLD = nn.KLDivLoss(reduction="batchmean", log_target=False)
         self.MSE = nn.MSELoss()
         # self.KLD = homemade_KLD # when running on mac
         self.epsilon = 1e-6  # set zeros to eps
-        self.log_softmax = nn.LogSoftmax()
-        self.loss = nn.CrossEntropyLoss()
+        # self.log_softmax = nn.LogSoftmax()
+        self.loss = nn.BCELoss()
 
     def diffusion_flow_probs(self):
         # Predict flow probabilities to points based on a local diffusion matrix, constructed out of the batch
@@ -425,7 +436,7 @@ class ManifoldFlowEmbedder(torch.nn.Module):
         # We use the embedded points and our FlowArtist to predict diffusion probabilities
         # Steps:
         # 1. Build diffusion matrix (using automatic kernel selection with flashlight kernel)
-        A = flashlight_affinity_matrix(self.embedded_points, self.embedded_flows, sigma="automatic", k = 10)
+        A = affinity_matrix_from_pointset_to_pointset(self.embedded_points, self.embedded_points, self.embedded_flows, sigma=0.5, flow_strength=1)
         P = F.normalize(A, p=1, dim=1)
         # 2. Power diffusion matrix
         self.Pts = [torch.linalg.matrix_power(P,t) for t in self.ts]
@@ -433,7 +444,7 @@ class ManifoldFlowEmbedder(torch.nn.Module):
         diffusion_probs = []
         for Pt in self.Pts:
             diffusion_probs.append(
-                Pt.diagonal(offset = 1)
+                Pt.diagonal(offset = 1)[torch.arange(len(self.embedded_points)//2)*2]
             )
         return diffusion_probs
 
@@ -441,19 +452,29 @@ class ManifoldFlowEmbedder(torch.nn.Module):
         # Extract data from batch
         # By default, point positions are batched two at a time.
         # We need to flatten along the second dimension
-        X = data["points"].flatten(start_dim=1, end_dim=1)
-        self.embedded_points = self.embedder(X)
+        # # print data shapes
+        # for k in data.keys():
+        #     print(f"{k} shape {data[k].shape}")
+        X = data["X"].flatten(start_dim=0, end_dim=1)
+        embedding_idxs = data['idxs'].flatten()
+        self.embedded_points = self.embedder(X, embedding_idxs)
         self.embedded_flows = self.flowArtist(self.embedded_points)
+        # Compute Losses
+        losses = {}
         # Compute predicted diffusion flow probabilities
         diffusion_probs = self.diffusion_flow_probs()
-        y = data["probs"]
-        # Row normalize these probabilities by indx (construct)
-
+        y = data["transition_to"]
         # Loop through each t and compute a weighted multiscale loss
-        # for i, t in enumerate(self.ts):
+        cost = 0
+        for i, t in enumerate(self.ts):
+            cost += self.loss(diffusion_probs[i],y[:,i]) * self.t_weights[i]
+        # print("predicted ",diffusion_probs[0])
+        # print("actually ", y[:,0])
+        losses["flow prediction"] = cost
 
-        self.embedded_flows = self.flowArtist(self.embedded_points)
-        losses = self.loss(data, loss_weights)
+        # Get autoencoder loss
+        # X_reconstructed = self.decoder(self.embedded_points)
+        # losses["reconstruction"] = self.MSE(X_reconstructed, X)
         return losses
 
 # Cell
