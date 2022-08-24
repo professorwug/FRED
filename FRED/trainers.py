@@ -49,7 +49,7 @@ class Trainer(object):
         self.labels = dataloader.dataset.labels
         self.X = dataloader.dataset.X
         for epoch_num in trange(n_epochs):
-            for data in tqdm(self.dataloader):
+            for data in self.dataloader:
                 self.optim.zero_grad()
                 # update loss weights according to scheduling
                 if self.scheduler is not None:

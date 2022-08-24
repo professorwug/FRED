@@ -541,6 +541,7 @@ import base64
 import ipywidgets as widgets
 import os
 from tqdm.notebook import tqdm
+from PIL import Image
 import datetime
 
 def flow_gif(X, flows, P, dataset_name, max_t = 128, plot_3d = False, duration = 40):

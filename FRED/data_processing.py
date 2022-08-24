@@ -357,7 +357,7 @@ class ManifoldWithVectorField(Dataset):
     For each item retrieved, returns a neighborhood around that point (based on local euclidean neighbors) containing local affinities
 
     """
-    def __init__(self, X, velocities, labels, sigma="automatic", prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors"):
+    def __init__(self, X, velocities, labels, sigma="automatic", flow_strength = 1, prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors"):
         # Step 0: Convert data into tensors
         self.X = torch.tensor(X).float()
         self.velocities = torch.tensor(velocities).float()
@@ -367,7 +367,7 @@ class ManifoldWithVectorField(Dataset):
         self.n_nodes = self.X.shape[0]
         self.minibatch_size = minibatch_size
         # Step 1. Build graph on input data, using flashlight kernel
-        self.A = flashlight_affinity_matrix(self.X, self.velocities, sigma = sigma)
+        self.A = flashlight_affinity_matrix(self.X, self.velocities, sigma = sigma, flow_strength = flow_strength)
         self.P_graph = F.normalize(self.A, p=1, dim=1)
         # visualize affinity matrix
         plt.imshow(self.A.numpy())
