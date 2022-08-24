@@ -4,7 +4,7 @@ __all__ = ['xy_tilt', 'add_noise', 'directed_circle', 'directed_spiral', 'direct
            'directed_spiral_delayed', 'generate_prism', 'directed_cylinder', 'directed_swiss_roll',
            'directed_swiss_roll_uniform', 'directed_swiss_roll_delayed', 'directed_one_variable_function',
            'directed_sine', 'directed_sine_ribbon', 'directed_sinh', 'directed_sinh_branch', 'directed_sine_moons',
-           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere',
+           'angle_x', 'whirlpool', 'rejection_sample_for_torus', 'directed_torus', 'directed_sphere', 'double_helix',
            'rnavelo_find_cluster_key', 'rnavelo_add_labels', 'rnavelo_preprocess', 'rnavelo', 'rnavelo_pcs',
            'rnavelo_plot_pca', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d',
            'visualize_edge_index', 'display_galary', 'display_flow_galary']
@@ -671,6 +671,32 @@ def directed_sphere(n=2000, r=1, flow_type = 'whirlpool', noise=None):
     return X, flows, labels
 
 # Cell
+import numpy as np
+def double_helix(num_nodes = 1000, noise=0, num_spirals = 2):
+    num_nodes = num_nodes // 2
+    X1_z = np.sort(np.random.rand(num_nodes)*2*np.pi*num_spirals)
+    X1_x = np.sin(X1_z)
+    X1_y = np.cos(X1_z)
+    X1 = np.column_stack([X1_x, X1_y, X1_z])
+    X1 += np.random.randn(num_nodes,3)*noise
+    flows_1 = np.column_stack([np.cos(X1_z),-np.sin(X1_z),np.ones(num_nodes)])
+    labels_1 = np.zeros(num_nodes)
+    # And form second helix
+    offset = np.pi
+    X2_z = np.sort(np.random.rand(num_nodes)*2*np.pi*num_spirals)
+    X2_x = np.sin(X2_z + offset)
+    X2_y = np.cos(X2_z + offset)
+    X2 = np.column_stack([X2_x, X2_y, X2_z])
+    X2 += np.random.randn(num_nodes,3)*noise
+    flows_2 = np.column_stack([-np.cos(X2_z + offset),np.sin(X2_z + offset),-np.ones(num_nodes)])
+    labels_2 = np.ones(num_nodes)
+    # combine them
+    X = np.vstack([X1, X2])
+    flows = np.vstack([flows_1,flows_2])
+    labels = np.concatenate([labels_1, labels_2],axis=0)
+    return X, flows, labels
+
+# Cell
 
 import scvelo as scv
 import torch
@@ -730,16 +756,15 @@ def rnavelo_pcs(adata):
 
     return X, flows, labels, n_pcs
 
-def rnavelo_plot_pca(adata):
+def rnavelo_plot_pca(adata, ax=None, show=True):
     rnavelo_pcs(adata)
     cluster_key = rnavelo_find_cluster_key(adata)
-    scv.pl.velocity_embedding_stream(adata, basis='pca', color=cluster_key)
+    scv.pl.velocity_embedding_stream(adata, basis='pca', color=cluster_key, ax=ax, show=show)
 
 # Cell
 import matplotlib.pyplot as plt
 
-
-def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None):
+def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None, save = False, title = "", filename = ""):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     if ax is None:
@@ -749,9 +774,12 @@ def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=No
     mask = np.random.rand(num_nodes) > mask_prob
     ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=alpha_arrows)
     ax.set_aspect("equal")
+    ax.set_title(title)
     if ax is None:
         plt.show()
-
+    if save:
+        plt.savefig(filename)
+        plt.close()
 
 # Cell
 def plot_origin_3d(ax, xlim, ylim, zlim):
@@ -760,7 +788,7 @@ def plot_origin_3d(ax, xlim, ylim, zlim):
     ax.plot([0, 0], [0, 0], zlim, color="k", alpha=0.5)
 
 
-def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False, ax=None):
+def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin=False, ax=None, save = False, filename = ""):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     mask = np.random.rand(num_nodes) > mask_prob
@@ -785,8 +813,16 @@ def plot_directed_3d(X, flow, labels=None, mask_prob=0.5, cmap="viridis", origin
         alpha=alpha_arrows,
         length=0.5,
     )
+    # lim = np.max(np.linalg.norm(X, axis=1))
+    # print("lim is",lim)
+    # ax.axes.set_xlim3d(left=-lim, right=lim)
+    # ax.axes.set_ylim3d(bottom=-lim, top=lim)
+    # ax.axes.set_zlim3d(bottom=-lim, top=lim)
     if ax is None:
         plt.show()
+    if save:
+        plt.savefig(filename)
+        plt.close()
 
 
 # Cell
@@ -855,6 +891,7 @@ def visualize_edge_index(edge_index, order_ind=None, cmap = "copper", ax=None):
 
 # Cell
 import matplotlib.pyplot as plt
+
 def display_galary(vizset, ncol=4):
     nviz = len(vizset)
     nrow = int(np.ceil(nviz/ncol))

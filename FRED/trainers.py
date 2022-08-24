@@ -25,15 +25,19 @@ class Trainer(object):
         loss_weights,
         title,
         visualization_functions,
+        data_type = "Flow Neighbor",
         device=device,
     ):
         self.vizfiz = visualization_functions
         self.loss_weights = loss_weights
         self.FE = FE.to(device)
         self.losses = None
+        self.data_type = data_type
         self.title = title
         self.epochs_between_visualization = 1
-        self.timestamp = datetime.datetime.now().isoformat()
+        self.timestamp = datetime.datetime.now().isoformat().replace(":",".")
+        if not os.path.exists("visualizations"):
+            os.mkdir("visualizations")
         os.mkdir(f"visualizations/{self.timestamp}")
         self.optim = torch.optim.Adam(self.FE.parameters())
         self.scheduler = None
@@ -51,9 +55,14 @@ class Trainer(object):
                 if self.scheduler is not None:
                     self.loss_weights = self.scheduler(self.loss_weights)
                 # have model compute losses, compile them into cost using loss weights
-                data['X'] = data['X'].to(self.device)
-                data['P'] = data['P'].to(self.device)
-                data['precomputed distances'] = data['precomputed distances'].to(self.device)
+                if self.data_type == "Flow Neighbor":
+                    data['X'] = data['X'].to(self.device)
+                    data['P'] = data['P'].to(self.device)
+                    data['precomputed distances'] = data['precomputed distances'].to(self.device)
+                elif self.data_type == "Flow Prediction":
+                    data['X'] = data['X'].to(self.device)
+                    data['transition_to'] = data['transition_to'].to(self.device)
+                    data['distance'] = data["distance"].to(self.device)
                 losses = self.FE(data, self.loss_weights)
                 cost = self.weight_losses(losses)
                 # backpropogate and update model
@@ -61,7 +70,7 @@ class Trainer(object):
                 self.optim.step()
                 # add losses to running loss history
                 self.losses = collate_loss(
-                    provided_losses=losses, prior_losses=self.losses
+                    provided_losses=losses, weights = self.loss_weights, prior_losses=self.losses,
                 )
             # run visualizations, if needed
             if epoch_num % self.epochs_between_visualization == 0:
@@ -132,7 +141,7 @@ class Trainer(object):
 import torch
 from .embed import compute_grid
 
-device = torch.device("cuda" if torch.has_cuda else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def visualize_points(
@@ -200,6 +209,7 @@ def save_embedding_visualization(
 # Cell
 def collate_loss(
     provided_losses,
+    weights,
     prior_losses=None,
     loss_type="total",
 ):
@@ -214,7 +224,7 @@ def collate_loss(
         prior_losses["total"] = []
     for key in provided_losses.keys():
         try:
-            prior_losses[key].append(provided_losses[key].detach().cpu().numpy())
+            prior_losses[key].append(provided_losses[key].detach().cpu().numpy() * weights[key])
         except:
             prior_losses[key].append(0)
     return prior_losses

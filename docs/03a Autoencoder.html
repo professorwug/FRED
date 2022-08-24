@@ -1,6 +1,6 @@
 ---
 
-title: Title
+title: Autoencoder
 
 
 keywords: fastai
@@ -25,6 +25,154 @@ nb_path: "03a Autoencoder.ipynb"
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-Autoencoder-Function">Create Autoencoder Function<a class="anchor-link" href="#Create-Autoencoder-Function"> </a></h2>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="auto_encoder" class="doc_header"><code>auto_encoder</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/embed.py#L86" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>auto_encoder</code>(<strong><code>enc_shape</code></strong>, <strong><code>device</code></strong>=<em><code>device(type='cpu')</code></em>)</p>
+</blockquote>
+<p>if input_dim &gt; output_dim:
+    raise Exception("Output dimension is greater than input dimension. Why embed? Mu.")</p>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Example-of-Creating-Autoencoder">Example of Creating Autoencoder<a class="anchor-link" href="#Example-of-Creating-Autoencoder"> </a></h3>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">encoder</span><span class="p">,</span> <span class="n">decoder</span> <span class="o">=</span> <span class="n">auto_encoder</span><span class="p">(</span><span class="n">enc_shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">encoder</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Sequential(
+  (0): Linear(in_features=3, out_features=4, bias=True)
+  (1): LeakyReLU(negative_slope=0.01)
+  (2): Linear(in_features=4, out_features=8, bias=True)
+  (3): LeakyReLU(negative_slope=0.01)
+  (4): Linear(in_features=8, out_features=8, bias=True)
+  (5): LeakyReLU(negative_slope=0.01)
+  (6): Linear(in_features=8, out_features=4, bias=True)
+  (7): LeakyReLU(negative_slope=0.01)
+  (8): Linear(in_features=4, out_features=2, bias=True)
+)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">decoder</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Sequential(
+  (0): Linear(in_features=2, out_features=4, bias=True)
+  (1): LeakyReLU(negative_slope=0.01)
+  (2): Linear(in_features=4, out_features=8, bias=True)
+  (3): LeakyReLU(negative_slope=0.01)
+  (4): Linear(in_features=8, out_features=8, bias=True)
+  (5): LeakyReLU(negative_slope=0.01)
+  (6): Linear(in_features=8, out_features=4, bias=True)
+  (7): LeakyReLU(negative_slope=0.01)
+  (8): Linear(in_features=4, out_features=3, bias=True)
+)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
 
 </div>
     {% endraw %}
