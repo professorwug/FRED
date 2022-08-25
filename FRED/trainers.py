@@ -27,6 +27,8 @@ class Trainer(object):
         visualization_functions,
         data_type = "Flow Neighbor",
         device=device,
+        scheduler = None,
+        learning_rate = 1e-3,
     ):
         self.vizfiz = visualization_functions
         self.loss_weights = loss_weights
@@ -39,8 +41,8 @@ class Trainer(object):
         if not os.path.exists("visualizations"):
             os.mkdir("visualizations")
         os.mkdir(f"visualizations/{self.timestamp}")
-        self.optim = torch.optim.Adam(self.FE.parameters())
-        self.scheduler = None
+        self.optim = torch.optim.Adam(self.FE.parameters(), lr = learning_rate)
+        self.scheduler = scheduler
         self.device = device
 
     def fit(self, dataloader, n_epochs=100):
@@ -140,6 +142,7 @@ class Trainer(object):
 # Cell
 import torch
 from .embed import compute_grid
+import plotly.figure_factory as ff
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -151,6 +154,7 @@ def visualize_points(
     device=device,
     title="FRED's Embedding",
     save=False,
+    use_streamlines = False,
     **kwargs,
 ):
     # computes grid around points
@@ -163,29 +167,36 @@ def visualize_points(
     v = uv[:, 1].cpu()
     x = grid.detach().cpu()[:, 0]
     y = grid.detach().cpu()[:, 1]
-    # quiver
-    # 	plots a 2D field of arrows
-    # 	quiver([X, Y], U, V, [C], **kw);
-    # 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
-    if labels is not None:
-        sc = plt.scatter(
-            embedded_points[:, 0].detach().cpu(),
-            embedded_points[:, 1].detach().cpu(),
-            c=labels,
-        )
-    # 			plt.legend()
+    if use_streamlines:
+        fig = ff.create_streamline(x, y, u, v, arrow_scale=.1)
+        if save:
+            fig.write_image(f"visualizations/{title}.jpg")
+        else:
+            fig.show()
     else:
-        sc = plt.scatter(
-            embedded_points[:, 0].detach().cpu(), embedded_points[:, 1].detach().cpu()
-        )
-    plt.suptitle("Flow Embedding")
-    plt.quiver(x, y, u, v)
-    # Display all open figures.
-    if save:
-        plt.savefig(f"visualizations/{title}.jpg")
-    else:
-        plt.show()
-    plt.close()
+        # quiver
+        # 	plots a 2D field of arrows
+        # 	quiver([X, Y], U, V, [C], **kw);
+        # 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
+        if labels is not None:
+            sc = plt.scatter(
+                embedded_points[:, 0].detach().cpu(),
+                embedded_points[:, 1].detach().cpu(),
+                c=labels,
+            )
+        # 			plt.legend()
+        else:
+            sc = plt.scatter(
+                embedded_points[:, 0].detach().cpu(), embedded_points[:, 1].detach().cpu()
+            )
+        plt.suptitle("Flow Embedding")
+        plt.quiver(x, y, u, v)
+        # Display all open figures.
+        if save:
+            plt.savefig(f"visualizations/{title}.jpg")
+        else:
+            plt.show()
+        plt.close()
 
 
 # Cell

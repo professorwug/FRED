@@ -86,13 +86,16 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "device": "04b Visualizations for Training.ipynb",
          "visualize_points": "04b Visualizations for Training.ipynb",
          "save_embedding_visualization": "04b Visualizations for Training.ipynb",
-         "collate_loss": "04b Visualizations for Training.ipynb"}
+         "collate_loss": "04b Visualizations for Training.ipynb",
+         "parameters_list_from_dict": "05c01 Results on Bone Marrow.ipynb",
+         "counter": "05c01 Results on Bone Marrow.ipynb"}
 
 modules = ["graph_datasets.py",
            "datasets.py",
            "data_processing.py",
            "embed.py",
-           "trainers.py"]
+           "trainers.py",
+           "testing_utils.py"]
 
 doc_url = "https://x.riddle.press/FRED/"
 

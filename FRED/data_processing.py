@@ -109,7 +109,7 @@ def affinity_grid_search(X,flow,sigmas, flow_strengths):
 # Cell
 import torch
 import numpy as np
-def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic", flow_strength= 1):
+def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic",flow_strength= 1):
     if type(X) == torch.Tensor:
         X = X.numpy()
     Dists = distance_matrix(X)
