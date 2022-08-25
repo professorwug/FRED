@@ -7,7 +7,7 @@ import json
 import os
 
 counter = 0
-def parameters_list_from_dict(parameters_dict, outfile, filetype = "dsq", kernel_name = 'directed_graphs', preamble = 'module load miniconda; conda activate directed_graphs;'):
+def parameters_list_from_dict(parameters_dict, outfile, filetype = "dsq", kernel_name = 'FREDkernel_jupyter', preamble = 'module load miniconda; conda activate FREDkernel;'):
     ''' Given a dictionary whose values are each a list of possible values, creates a json file with one dictionary for every possible combination of values.
         If filetype is `dsq`, then makes a txt file with each line corresponding to a job, ending in `papermill ....`.
     '''
@@ -30,8 +30,11 @@ def parameters_list_from_dict(parameters_dict, outfile, filetype = "dsq", kernel
                     f.write(',')
                 elif filetype == "dsq":
                     in_notebook = little_dict['notebook']
-                    out_notebook = 'papermilled/'+in_notebook.replace('.ipynb','')+ "/" + descriptor + '.ipynb'
-                    command = f"{preamble} papermill '{in_notebook}' '{out_notebook}' -k {kernel_name} -y {little_dict.__str__()}"
+                    directory = 'papermilled/'+in_notebook.replace('.ipynb','')
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
+                    out_notebook =  directory + "/" + descriptor + '.ipynb'
+                    command = f'{preamble} papermill "{in_notebook}" "{out_notebook}" -k {kernel_name} -y "{little_dict.__str__()}"'
                     f.write(f"{command}\n")
 
         else:

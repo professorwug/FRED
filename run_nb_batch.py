@@ -94,4 +94,4 @@ if __name__ == '__main__':
 			)
 			p.start()
 		else:
-			run_papermill(config_dict)
+			run_papermill(config_dict[0])
