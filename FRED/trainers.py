@@ -8,7 +8,7 @@ import torch
 import time
 import datetime
 import FRED
-from tqdm.notebook import tqdm, trange
+from tqdm import tqdm, trange
 import glob
 from PIL import Image
 import os
@@ -70,10 +70,10 @@ class Trainer(object):
                 # backpropogate and update model
                 cost.backward()
                 self.optim.step()
-                # add losses to running loss history
-                self.losses = collate_loss(
-                    provided_losses=losses, weights = self.loss_weights, prior_losses=self.losses,
-                )
+            # add losses to running loss history at the end of each epoch
+            self.losses = collate_loss(
+                provided_losses=losses, weights = self.loss_weights, prior_losses=self.losses,
+            )
             # run visualizations, if needed
             if epoch_num % self.epochs_between_visualization == 0:
                 title = f"{self.timestamp}/{self.title} Epoch {epoch_num:03d}"
@@ -83,6 +83,7 @@ class Trainer(object):
         # Save most recent embedded points and flow artist for running visualizations
         self.embedded_points = self.FE.embedder(self.dataloader.dataset.X.to(self.device))
         self.flow_artist = flowArtist
+        self.embedded_velocities = self.FE.flowArtist(self.embedded_points)
         self.labels = self.dataloader.dataset.labels
 
     def weight_losses(self, losses):
