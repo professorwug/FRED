@@ -43,7 +43,7 @@ def run_papermill(config):
 	pm.execute_notebook(
 		notebook,
 		output_path,
-		parameters=dict(config=config),
+		parameters=dict(config),
 		kernel_name = kernel
 		)
 
