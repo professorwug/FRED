@@ -75,6 +75,7 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "GaussianVectorField": "03b01 Gaussian Vector Field Flow Artist.ipynb",
          "precomputed_distance_loss": "03c01 Diffusion Map MSE.ipynb",
          "flow_neighbor_loss": "03c02 Flow Neighbor MSE.ipynb",
+         "contrastive_flow_loss": "03c02 Flow Neighbor MSE.ipynb",
          "smoothness_of_vector_field": "03c03 Smoothness.ipynb",
          "kl_divergence_loss": "03c04 KL Divergence.ipynb",
          "FlowPredictionDataset": "03d Flow Prediction Embedder.ipynb",
@@ -86,13 +87,16 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "device": "04b Visualizations for Training.ipynb",
          "visualize_points": "04b Visualizations for Training.ipynb",
          "save_embedding_visualization": "04b Visualizations for Training.ipynb",
-         "collate_loss": "04b Visualizations for Training.ipynb"}
+         "collate_loss": "04b Visualizations for Training.ipynb",
+         "parameters_list_from_dict": "05c01 Results on Bone Marrow.ipynb",
+         "counter": "05c01 Results on Bone Marrow.ipynb"}
 
 modules = ["graph_datasets.py",
            "datasets.py",
            "data_processing.py",
            "embed.py",
-           "trainers.py"]
+           "trainers.py",
+           "testing_utils.py"]
 
 doc_url = "https://x.riddle.press/FRED/"
 

@@ -8,7 +8,7 @@ import torch
 import time
 import datetime
 import FRED
-from tqdm.notebook import tqdm, trange
+from tqdm import tqdm, trange
 import glob
 from PIL import Image
 import os
@@ -27,6 +27,8 @@ class Trainer(object):
         visualization_functions,
         data_type = "Flow Neighbor",
         device=device,
+        scheduler = None,
+        learning_rate = 1e-3,
     ):
         self.vizfiz = visualization_functions
         self.loss_weights = loss_weights
@@ -39,8 +41,8 @@ class Trainer(object):
         if not os.path.exists("visualizations"):
             os.mkdir("visualizations")
         os.mkdir(f"visualizations/{self.timestamp}")
-        self.optim = torch.optim.Adam(self.FE.parameters())
-        self.scheduler = None
+        self.optim = torch.optim.Adam(self.FE.parameters(), lr = learning_rate)
+        self.scheduler = scheduler
         self.device = device
 
     def fit(self, dataloader, n_epochs=100):
@@ -49,7 +51,7 @@ class Trainer(object):
         self.labels = dataloader.dataset.labels
         self.X = dataloader.dataset.X
         for epoch_num in trange(n_epochs):
-            for data in tqdm(self.dataloader):
+            for data in self.dataloader:
                 self.optim.zero_grad()
                 # update loss weights according to scheduling
                 if self.scheduler is not None:
@@ -68,10 +70,10 @@ class Trainer(object):
                 # backpropogate and update model
                 cost.backward()
                 self.optim.step()
-                # add losses to running loss history
-                self.losses = collate_loss(
-                    provided_losses=losses, weights = self.loss_weights, prior_losses=self.losses,
-                )
+            # add losses to running loss history at the end of each epoch
+            self.losses = collate_loss(
+                provided_losses=losses, weights = self.loss_weights, prior_losses=self.losses,
+            )
             # run visualizations, if needed
             if epoch_num % self.epochs_between_visualization == 0:
                 title = f"{self.timestamp}/{self.title} Epoch {epoch_num:03d}"
@@ -81,6 +83,7 @@ class Trainer(object):
         # Save most recent embedded points and flow artist for running visualizations
         self.embedded_points = self.FE.embedder(self.dataloader.dataset.X.to(self.device))
         self.flow_artist = flowArtist
+        self.embedded_velocities = self.FE.flowArtist(self.embedded_points)
         self.labels = self.dataloader.dataset.labels
 
     def weight_losses(self, losses):
@@ -140,6 +143,7 @@ class Trainer(object):
 # Cell
 import torch
 from .embed import compute_grid
+import plotly.figure_factory as ff
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -151,6 +155,7 @@ def visualize_points(
     device=device,
     title="FRED's Embedding",
     save=False,
+    use_streamlines = False,
     **kwargs,
 ):
     # computes grid around points
@@ -163,29 +168,36 @@ def visualize_points(
     v = uv[:, 1].cpu()
     x = grid.detach().cpu()[:, 0]
     y = grid.detach().cpu()[:, 1]
-    # quiver
-    # 	plots a 2D field of arrows
-    # 	quiver([X, Y], U, V, [C], **kw);
-    # 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
-    if labels is not None:
-        sc = plt.scatter(
-            embedded_points[:, 0].detach().cpu(),
-            embedded_points[:, 1].detach().cpu(),
-            c=labels,
-        )
-    # 			plt.legend()
+    if use_streamlines:
+        fig = ff.create_streamline(x, y, u, v, arrow_scale=.1)
+        if save:
+            fig.write_image(f"visualizations/{title}.jpg")
+        else:
+            fig.show()
     else:
-        sc = plt.scatter(
-            embedded_points[:, 0].detach().cpu(), embedded_points[:, 1].detach().cpu()
-        )
-    plt.suptitle("Flow Embedding")
-    plt.quiver(x, y, u, v)
-    # Display all open figures.
-    if save:
-        plt.savefig(f"visualizations/{title}.jpg")
-    else:
-        plt.show()
-    plt.close()
+        # quiver
+        # 	plots a 2D field of arrows
+        # 	quiver([X, Y], U, V, [C], **kw);
+        # 	X, Y define the arrow locations, U, V define the arrow directions, and C optionally sets the color.
+        if labels is not None:
+            sc = plt.scatter(
+                embedded_points[:, 0].detach().cpu(),
+                embedded_points[:, 1].detach().cpu(),
+                c=labels,
+            )
+        # 			plt.legend()
+        else:
+            sc = plt.scatter(
+                embedded_points[:, 0].detach().cpu(), embedded_points[:, 1].detach().cpu()
+            )
+        plt.suptitle("Flow Embedding")
+        plt.quiver(x, y, u, v)
+        # Display all open figures.
+        if save:
+            plt.savefig(f"visualizations/{title}.jpg")
+        else:
+            plt.show()
+        plt.close()
 
 
 # Cell

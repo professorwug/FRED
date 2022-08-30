@@ -1,0 +1,97 @@
+{
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 0.5, flow_strength 0.5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 0.5,
+    "flow_strength": 0.5
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 0.5, flow_strength 1":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 0.5,
+    "flow_strength": 1
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 0.5, flow_strength 2":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 0.5,
+    "flow_strength": 2
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 0.5, flow_strength 5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 0.5,
+    "flow_strength": 5
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 1, flow_strength 0.5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 1,
+    "flow_strength": 0.5
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 1, flow_strength 1":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 1,
+    "flow_strength": 1
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 1, flow_strength 2":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 1,
+    "flow_strength": 2
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 1, flow_strength 5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 1,
+    "flow_strength": 5
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 2, flow_strength 0.5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 2,
+    "flow_strength": 0.5
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 2, flow_strength 1":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 2,
+    "flow_strength": 1
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 2, flow_strength 2":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 2,
+    "flow_strength": 2
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 2, flow_strength 5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 2,
+    "flow_strength": 5
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 5, flow_strength 0.5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 5,
+    "flow_strength": 0.5
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 5, flow_strength 1":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 5,
+    "flow_strength": 1
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 5, flow_strength 2":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 5,
+    "flow_strength": 2
+},
+"name_of_test double_helix_benchmark, dataset_name double helix, sigma 5, flow_strength 5":{
+    "name_of_test": "double_helix_benchmark",
+    "dataset_name": "double helix",
+    "sigma": 5,
+    "flow_strength": 5
+}}
