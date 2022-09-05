@@ -1,0 +1,16 @@
+{
+"run_1":{
+    "notebook": "05d02 PHATE Comparison on sc.ipynb",
+    "dataset_name": "bone marrow",
+    "output_label": "run_1"
+},
+"run_2":{
+    "notebook": "05d02 PHATE Comparison on sc.ipynb",
+    "dataset_name": "dentategyrus",
+    "output_label": "run_2"
+},
+"run_3":{
+    "notebook": "05d02 PHATE Comparison on sc.ipynb",
+    "dataset_name": "pancreas",
+    "output_label": "run_3"
+}}
