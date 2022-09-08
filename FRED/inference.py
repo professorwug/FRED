@@ -73,7 +73,7 @@ def flow_integration(X, V, starting_index, num_steps, step_size = "automatic", n
         k = 10
         Dists = pairwise_distances(X)
         step_size = np.median(np.partition(Dists,k)[:,k])
-        print("using step size ",step_size)
+        # print("using step size ",step_size)
     xi = X[starting_index]
     vi = V[starting_index]/torch.linalg.norm(V[starting_index])
     idx = starting_index
@@ -105,6 +105,6 @@ def plot_flow_line(X,V,flowline):
     Xembedded = X.detach().numpy()
     Vembedded = V.detach().numpy()
     # convert these into labels
-    lbs = np.zeros(len(Xembedded))
-    lbs[flowline] = 1 #+ np.arange(len(flowline))/len(flowline)
+    lbs = np.ones(len(Xembedded))
+    lbs[flowline] = 0 #+ np.arange(len(flowline))/len(flowline)
     plot_directed_2d(Xembedded,Vembedded,lbs, equal_aspect_ratio=False, cmap="plasma")

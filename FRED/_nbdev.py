@@ -88,12 +88,16 @@ index = {"EmailEuNetwork": "01a01a Communities Datasets.ipynb",
          "visualize_points": "04b Visualizations for Training.ipynb",
          "save_embedding_visualization": "04b Visualizations for Training.ipynb",
          "collate_loss": "04b Visualizations for Training.ipynb",
-         "parameters_list_from_dict": "05d02a PHATE tests.ipynb",
-         "counter": "05d02a PHATE tests.ipynb",
+         "parameters_list_from_dict": "05b01 Double Helix Results.ipynb",
          "flow_integration_v1": "05e Integrating along the Flow Lines.ipynb",
          "flow_integration": "05e Integrating along the Flow Lines.ipynb",
          "diffusion_flow_integration": "05e Integrating along the Flow Lines.ipynb",
-         "plot_flow_line": "05e Integrating along the Flow Lines.ipynb"}
+         "plot_flow_line": "05e Integrating along the Flow Lines.ipynb",
+         "flow_neighbor_metric": "05f Metrics for Benchmarking.ipynb",
+         "silhouette_metric": "05f Metrics for Benchmarking.ipynb",
+         "nn_classification_metric": "05f Metrics for Benchmarking.ipynb",
+         "monotone_increasing_metric": "05f Metrics for Benchmarking.ipynb",
+         "comprehensive_flow_metrics": "05f Metrics for Benchmarking.ipynb"}
 
 modules = ["graph_datasets.py",
            "datasets.py",
@@ -101,7 +105,8 @@ modules = ["graph_datasets.py",
            "embed.py",
            "trainers.py",
            "testing_utils.py",
-           "inference.py"]
+           "inference.py",
+           "metrics.py"]
 
 doc_url = "https://x.riddle.press/FRED/"
 

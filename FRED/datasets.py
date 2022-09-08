@@ -764,16 +764,17 @@ def rnavelo_plot_pca(adata, ax=None, show=True):
 # Cell
 import matplotlib.pyplot as plt
 
-def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None, save = False, use_streamlines = True, title = "", filename = ""):
+def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None, save = False, use_streamlines = True, title = "", filename = "", equal_aspect_ratio = True):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot()
-
     ax.scatter(X[:, 0], X[:, 1], marker=".", c=labels, cmap=cmap, alpha=alpha_points)
     mask = np.random.rand(num_nodes) > mask_prob
     ax.quiver(X[mask, 0], X[mask, 1], flows[mask, 0], flows[mask, 1], alpha=alpha_arrows)
+    if equal_aspect_ratio:
+        ax.set_aspect("equal")
     ax.set_aspect("equal")
     ax.set_title(title)
     if ax is None:
