@@ -1,0 +1,49 @@
+{
+"run1_dataset_name-bonemarrow_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10":{
+    "notebook": "05c Single Cell Dataset Benchmarker.ipynb",
+    "dataset_name": "bone marrow",
+    "sigma": "automatic",
+    "flow_strength": 10,
+    "smoothness_weight": 0,
+    "flow_neighbor_loss_weight": 1,
+    "contrastive_flow_loss_weight": 10,
+    "diffdist_weight": 1,
+    "num_neighbors": 10,
+    "output_label": "run1_dataset_name-bonemarrow_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10"
+},
+"run2_dataset_name-dentategyrus_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10":{
+    "notebook": "05c Single Cell Dataset Benchmarker.ipynb",
+    "dataset_name": "dentategyrus",
+    "sigma": "automatic",
+    "flow_strength": 10,
+    "smoothness_weight": 0,
+    "flow_neighbor_loss_weight": 1,
+    "contrastive_flow_loss_weight": 10,
+    "diffdist_weight": 1,
+    "num_neighbors": 10,
+    "output_label": "run2_dataset_name-dentategyrus_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10"
+},
+"run3_dataset_name-pancreas_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10":{
+    "notebook": "05c Single Cell Dataset Benchmarker.ipynb",
+    "dataset_name": "pancreas",
+    "sigma": "automatic",
+    "flow_strength": 10,
+    "smoothness_weight": 0,
+    "flow_neighbor_loss_weight": 1,
+    "contrastive_flow_loss_weight": 10,
+    "diffdist_weight": 1,
+    "num_neighbors": 10,
+    "output_label": "run3_dataset_name-pancreas_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10"
+},
+"run4_dataset_name-dentategyrus_lamanno_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10":{
+    "notebook": "05c Single Cell Dataset Benchmarker.ipynb",
+    "dataset_name": "dentategyrus_lamanno",
+    "sigma": "automatic",
+    "flow_strength": 10,
+    "smoothness_weight": 0,
+    "flow_neighbor_loss_weight": 1,
+    "contrastive_flow_loss_weight": 10,
+    "diffdist_weight": 1,
+    "num_neighbors": 10,
+    "output_label": "run4_dataset_name-dentategyrus_lamanno_sigma-automatic_flow_strength-10_smoothness_weight-0_flow_neighbor_loss_weight-1_contrastive_flow_loss_weight-10_diffdist_weight-1_num_neighbors-10"
+}}

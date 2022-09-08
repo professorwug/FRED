@@ -1,0 +1,21 @@
+{
+"run1_dataset_name-bonemarrow":{
+    "notebook": "05d03 scvelo embeddings of sc.ipynb",
+    "dataset_name": "bone marrow",
+    "output_label": "run1_dataset_name-bonemarrow"
+},
+"run2_dataset_name-dentategyrus":{
+    "notebook": "05d03 scvelo embeddings of sc.ipynb",
+    "dataset_name": "dentategyrus",
+    "output_label": "run2_dataset_name-dentategyrus"
+},
+"run3_dataset_name-pancreas":{
+    "notebook": "05d03 scvelo embeddings of sc.ipynb",
+    "dataset_name": "pancreas",
+    "output_label": "run3_dataset_name-pancreas"
+},
+"run4_dataset_name-dentategyrus_lamanno":{
+    "notebook": "05d03 scvelo embeddings of sc.ipynb",
+    "dataset_name": "dentategyrus_lamanno",
+    "output_label": "run4_dataset_name-dentategyrus_lamanno"
+}}
