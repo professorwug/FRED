@@ -5,7 +5,7 @@ __all__ = ['parameters_list_from_dict']
 # Cell
 import json
 import os
-def parameters_list_from_dict(parameters_dict, outfile, filetype = "dsq", kernel_name = 'FREDkernel_jupyter', preamble = 'module load miniconda; conda activate FREDkernel;'):
+def parameters_list_from_dict(parameters_dict, outfile, filetype = "dsq", kernel_name = 'FREDtake2', preamble = 'module load miniconda; conda activate FREDtake2;'):
     ''' Given a dictionary whose values are each a list of possible values, creates a json file with one dictionary for every possible combination of values.
         If filetype is `dsq`, then makes a txt file with each line corresponding to a job, ending in `papermill ....`.
     '''
