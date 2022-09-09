@@ -14,8 +14,14 @@ def flow_neighbor_metric(X, flows, embedded_points, embedded_velocities):
     A = flashlight_affinity_matrix(X, flows, sigma = "automatic", flow_strength = 5)
     P_graph = F.normalize(A, p=1, dim=1)
     neighborhoods = flow_neighbors(num_nodes = len(X), P_graph = P_graph, n_neighbors = 5)
-    neighbor_score = flow_neighbor_loss(neighborhoods, torch.tensor(embedded_points), torch.tensor(embedded_velocities))
-    return neighbor_score
+    row, col = neighborhoods
+    directions = (embedded_points[col] - embedded_points[row])
+    directions = F.normalize(torch.tensor(directions),dim=1)
+    embedded_velocities = torch.tensor(embedded_velocities[row])
+    embedded_velocities = F.normalize(embedded_velocities, dim=1)
+    loss = torch.norm(directions - embedded_velocities)**2
+    # neighbor_score = flow_neighbor_loss(neighborhoods, torch.tensor(embedded_points), torch.tensor(embedded_velocities))
+    return loss
 
 # Cell
 import sklearn
@@ -40,17 +46,20 @@ def nn_classification_metric(embedded_points, embedded_velocities, labels):
 # Cell
 from .inference import flow_integration
 from tqdm.notebook import trange, tqdm
-def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 1000):
+def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 10):
     # sample random starting points
     idxs = torch.randint(len(embedded_points), size=[num_samples])
     neg_diffs = 0
     for pointA in tqdm(idxs):
         flowline = flow_integration(torch.tensor(embedded_points), torch.tensor(embedded_velocities), starting_index = pointA, step_size = "automatic", num_steps = 20)
+        flowline = np.array(flowline)
         # take difference between neighbors in the vector
-        flowline = np.random.rand(5)
-        neighb_diffs = flowline[1:] - flowline[:-1]
+        times_at_flowline = time_labels[flowline]
+        neighb_diffs = times_at_flowline[1:] - times_at_flowline[:-1]
+        print("neighb diffs: ",neighb_diffs)
         # get sums of negative numbers
         neg_diffs += (np.sum(neighb_diffs) - np.sum(np.abs(neighb_diffs)))/2
+    neg_diffs/num_samples
     return neg_diffs
 
 # Cell
