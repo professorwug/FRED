@@ -46,7 +46,7 @@ def nn_classification_metric(embedded_points, embedded_velocities, labels):
 # Cell
 from .inference import flow_integration
 from tqdm.notebook import trange, tqdm
-def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 10):
+def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 1000):
     # sample random starting points
     idxs = torch.randint(len(embedded_points), size=[num_samples])
     neg_diffs = 0
@@ -56,7 +56,7 @@ def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels
         # take difference between neighbors in the vector
         times_at_flowline = time_labels[flowline]
         neighb_diffs = times_at_flowline[1:] - times_at_flowline[:-1]
-        print("neighb diffs: ",neighb_diffs)
+        # print("neighb diffs: ",neighb_diffs)
         # get sums of negative numbers
         neg_diffs += (np.sum(neighb_diffs) - np.sum(np.abs(neighb_diffs)))/2
     neg_diffs/num_samples
