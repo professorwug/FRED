@@ -122,12 +122,13 @@ class Trainer(object):
         ).decode("ascii")
         display(widgets.HTML(f'<img src="data:image/gif;base64,{b64}" />'))
 
-    def visualize_embedding(self):
+    def visualize_embedding(self, use_streamlines=True):
         visualize_points(
             embedded_points=self.embedded_points,
             flow_artist=self.flow_artist,
             labels=self.labels,
             title=self.title,
+            use_streamlines=use_streamlines,
         )
 
     def visualize_loss(self, loss_type="all"):
@@ -144,6 +145,7 @@ class Trainer(object):
 import torch
 from .embed import compute_grid
 import plotly.figure_factory as ff
+import numpy as np
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -158,23 +160,43 @@ def visualize_points(
     use_streamlines = False,
     **kwargs,
 ):
-    # computes grid around points
-    # TODO: This might create CUDA errors
-    grid = compute_grid(embedded_points.to(device)).to(device)
-    # controls the x and y axes of the plot
-    # linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
-    uv = flow_artist(grid).detach().cpu()
-    u = uv[:, 0].cpu()
-    v = uv[:, 1].cpu()
-    x = grid.detach().cpu()[:, 0]
-    y = grid.detach().cpu()[:, 1]
     if use_streamlines:
-        fig = ff.create_streamline(x, y, u, v, arrow_scale=.1)
-        if save:
-            fig.write_image(f"visualizations/{title}.jpg")
-        else:
-            fig.show()
+        embedded_points_np = embedded_points.detach().numpy()
+        fig = plt.figure(dpi=200, figsize=(5,5))
+        ax = fig.add_subplot()
+        grid_width = 100
+        minx = float(np.min(embedded_points_np[:, 0]) - 0.1)  # TODO: use torch.min, try without detach
+        maxx = float(np.max(embedded_points_np[:, 0]) + 0.1)
+        miny = float(np.min(embedded_points_np[:, 1]) - 0.1)
+        maxy = float(np.max(embedded_points_np[:, 1]) + 0.1)
+        x = np.linspace(minx, maxx, grid_width)
+        y = np.linspace(miny, maxy, grid_width)
+        # build grid points
+        Xgrid, Ygrid = np.meshgrid(x, y)
+        xy_t = torch.concat([torch.tensor(Xgrid[:,:,None]), torch.tensor(Ygrid[:, :, None])], dim=2).float()
+        # xy_t = xy_t.reshape(grid_width**2, 2).detach()
+        # pass grid through flow artist
+        uv = flow_artist(xy_t).detach().cpu()
+        u = uv[:,:, 0].cpu()
+        v = uv[:,:, 1].cpu()
+        sc = ax.scatter(
+            embedded_points_np[:, 0],
+            embedded_points_np[:, 1],
+            c=labels, cmap='viridis'
+        )
+        ax.streamplot(x,y,u,v)
+        plt.axis("off")
     else:
+        # computes grid around points
+        # TODO: This might create CUDA errors
+        grid = compute_grid(embedded_points.to(device)).to(device)
+        # controls the x and y axes of the plot
+        # linspace(min on axis, max on axis, spacing on plot -- large number = more field arrows)
+        uv = flow_artist(grid).detach().cpu()
+        u = uv[:, 0].cpu()
+        v = uv[:, 1].cpu()
+        x = grid.detach().cpu()[:, 0]
+        y = grid.detach().cpu()[:, 1]
         # quiver
         # 	plots a 2D field of arrows
         # 	quiver([X, Y], U, V, [C], **kw);

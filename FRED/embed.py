@@ -506,7 +506,7 @@ class FlowPredictionEmbedder(torch.nn.Module):
 from .data_processing import (
     affinity_matrix_from_pointset_to_pointset
 )
-def compute_grid(X, grid_width=20):
+def compute_grid(X, grid_width=20, return_unmeshed_x_and_y = False):
     """Returns a grid of points which bounds the points X.
     The grid has 'grid_width' dots in both length and width.
     Accepts X, tensor of shape n x 2
@@ -525,6 +525,8 @@ def compute_grid(X, grid_width=20):
     )
     xy_t = torch.concat([x[:, :, None], y[:, :, None]], dim=2).float()
     xy_t = xy_t.reshape(grid_width**2, 2).detach()
+    if return_unmeshed_x_and_y:
+        return xy_t, torch.linspace(minx, maxx, steps=grid_width), torch.linspace(miny, maxy, steps=grid_width)
     return xy_t
 
 # Cell
