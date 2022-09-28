@@ -44,14 +44,14 @@ def nn_classification_metric(embedded_points, embedded_velocities, labels):
     return knn_classifier_score
 
 # Cell
-from .inference import flow_integration
+from .inference import diffusion_flow_integration
 from tqdm.notebook import trange, tqdm
-def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 1000):
+def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 1000, flow_strength=5):
     # sample random starting points
     idxs = torch.randint(len(embedded_points), size=[num_samples])
     neg_diffs = 0
     for pointA in tqdm(idxs):
-        flowline = flow_integration(torch.tensor(embedded_points), torch.tensor(embedded_velocities), starting_index = pointA, step_size = "automatic", num_steps = 20)
+        flowline = diffusion_flow_integration(torch.tensor(embedded_points), torch.tensor(embedded_velocities), starting_index = pointA, num_steps = 20, flow_strength=flow_strength)
         flowline = np.array(flowline)
         # take difference between neighbors in the vector
         times_at_flowline = time_labels[flowline]
@@ -64,7 +64,7 @@ def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels
 
 # Cell
 import csv
-def comprehensive_flow_metrics(X, flows, labels, embedded_points, embedded_velocities, time_labels, spreadsheet_name, unid):
+def comprehensive_flow_metrics(X, flows, labels, embedded_points, embedded_velocities, time_labels, spreadsheet_name, unid, flow_strength):
     neighbor_score = flow_neighbor_metric(X, flows, embedded_points,embedded_velocities)
     silhouette_score, silhouete_score_with_flow = silhouette_metric(embedded_points, embedded_velocities, labels)
     knn_score = nn_classification_metric(embedded_points, embedded_velocities, labels)
