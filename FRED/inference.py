@@ -81,10 +81,10 @@ def flow_integration(X, V, starting_index, num_steps, step_size = "automatic", n
     for stepnum in range(num_steps):
         xj = xi + step_size*vi
         # print(f"step size is {torch.linalg.norm(step_size*vi)}. xj is {xj}. vi is {vi}. xi is {xi}")
-        # filter out the base point
-        X_filtered = torch.concat((X[:idx], X[idx+1:]), dim=0)
+        # filter out the base point (from the future: this causes unnecessary oscillation)
+        # X_filtered = torch.concat((X[:idx], X[idx+1:]), dim=0)
         # get new index and adjust
-        new_idx = torch.argmin(torch.linalg.norm(X_filtered - xj, axis=1))
+        new_idx = torch.argmin(torch.linalg.norm(X - xj, axis=1))
         if new_idx >= idx: new_idx += 1
         idx = new_idx
         # set new xi and vi
@@ -94,10 +94,23 @@ def flow_integration(X, V, starting_index, num_steps, step_size = "automatic", n
     return flow_indices
 
 # Cell
-def diffusion_flow_integration(X, V, starting_index, num_steps):
+from .data_processing import flashlight_affinity_matrix
+import torch.nn.functional as F
+def diffusion_flow_integration(X, V, starting_index, num_steps, sigma="automatic", flow_strength=10):
     # integrate along the manifold, but using the diffusion matrix rather than brute integration along flow arrows
     # preferred to the `flow_integrate` function if doing actual inference from FRED's output, as the diffusion driven integration process better mimics his loss function.
-    pass
+    A = flashlight_affinity_matrix(X,V, sigma=sigma, flow_strength=flow_strength)
+    P = F.normalize(A, p=1, dim=1)
+    # Starting distribution is the dirac at starting_index
+    dist = torch.zeros(len(X))
+    dist[starting_index] = 1
+    # Diffuse dist by right multiplication by diffusion matrix.
+    # On each diffusion, capture the highest probability point
+    flow_indices = []
+    for t in range(num_steps):
+        dist = dist @ P
+        flow_indices.append(torch.argmax(dist))
+    return flow_indices
 
 # Cell
 from .datasets import plot_directed_2d
