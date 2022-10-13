@@ -54,7 +54,7 @@ nb_path: "03 Embedder.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="ManifoldFlowEmbedder" class="doc_header"><code>class</code> <code>ManifoldFlowEmbedder</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/embed.py#L13" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>ManifoldFlowEmbedder</code>(<strong><code>embedding_dimension</code></strong>=<em><code>2</code></em>, <strong><code>ts</code></strong>=<em><code>[1, 2, 4, 8]</code></em>, <strong><code>embedder_shape</code></strong>=<em><code>[3, 4, 8, 4, 2]</code></em>, <strong><code>device</code></strong>=<em><code>device(type='cpu')</code></em>, <strong><code>sigma</code></strong>=<em><code>0.5</code></em>, <strong><code>flow_strength</code></strong>=<em><code>0.5</code></em>, <strong><code>smoothness_grid</code></strong>=<em><code>True</code></em>) :: <code>Module</code></p>
+<h2 id="ManifoldFlowEmbedder" class="doc_header"><code>class</code> <code>ManifoldFlowEmbedder</code><a href="https://github.com/professorwug/FRED/tree/master/FRED/embed.py#L14" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>ManifoldFlowEmbedder</code>(<strong><code>embedding_dimension</code></strong>=<em><code>2</code></em>, <strong><code>embedder_shape</code></strong>=<em><code>[3, 4, 8, 4, 2]</code></em>, <strong><code>device</code></strong>=<em><code>device(type='cpu')</code></em>, <strong><code>sigma</code></strong>=<em><code>0.5</code></em>, <strong><code>flow_strength</code></strong>=<em><code>0.5</code></em>, <strong><code>num_negative_samples</code></strong>=<em><code>20</code></em>, <strong><code>smoothness_grid</code></strong>=<em><code>True</code></em>) :: <code>Module</code></p>
 </blockquote>
 <p>Base class for all neural network modules.</p>
 <p>Your models should also subclass this class.</p>
@@ -102,5 +102,5 @@ parameters converted too when you call :meth:<code>to</code>, etc.</p>
     {% endraw %}
 
 </div>
-
+ 
 

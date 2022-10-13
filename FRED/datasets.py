@@ -764,7 +764,7 @@ def rnavelo_plot_pca(adata, ax=None, show=True):
 # Cell
 import matplotlib.pyplot as plt
 
-def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None, save = False, use_streamlines = True, title = "", filename = "", equal_aspect_ratio = True):
+def plot_directed_2d(X, flows, labels=None, mask_prob=0.5, cmap="viridis", ax=None, save = False, use_streamlines = True, title = "", filename = "", equal_aspect_ratio = True, minimal=False):
     num_nodes = X.shape[0]
     alpha_points, alpha_arrows = (0.1, 1) if labels is None else (1, 0.1)
     if ax is None:
