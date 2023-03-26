@@ -70,6 +70,9 @@ entries:
       title: 02c Flow Neighborhoods
       url: 02c Flow Neighborhoods.html
     - output: web,pdf
+      title: 02d Flow Datasets
+      url: 02d Flow Datasets.html
+    - output: web,pdf
       title: 'EEEMD: Edge-to-Edge Earth Mover''s Distance'
       url: 02e Edge to Edge Earth Mover's Distance (EEEMD).html
     - output: web,pdf
@@ -148,10 +151,10 @@ entries:
       url: 05b01 Double Helix Results.html
     - output: web,pdf
       title: 05c Single Cell Dataset Benchmarker
-      url: 05c Single Cell Dataset Benchmarker.html
+      url: 05g Single Cell Dataset Benchmarker with UMAP base.html
     - output: web,pdf
       title: Comprehensive Single Cell Results with FRED
-      url: 05c01 Results with FRED on Single Cell Datasets.html
+      url: 05g01 Results with FRED on Single Cell Datasets with UMAP.html
     - output: web,pdf
       title: Comprehensive Bone Marrow Results with FRED
       url: 05c02 Results on Denta.html
