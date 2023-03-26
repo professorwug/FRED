@@ -59,7 +59,7 @@ class Trainer(object):
                 # have model compute losses, compile them into cost using loss weights
                 if self.data_type == "Flow Neighbor":
                     data['X'] = data['X'].to(self.device)
-                    data['neighbor'] = data['neighbor'].to(self.device)
+                    data['neighbors'] = data['neighbors'].to(self.device)
                     # data['P'] = data['P'].to(self.device)
                     data['precomputed distances'] = data['precomputed distances'].to(self.device)
                 elif self.data_type == "Flow Prediction":
@@ -68,7 +68,7 @@ class Trainer(object):
                     data['distance'] = data["distance"].to(self.device)
                 elif self.data_type == "Contrastive Flow":
                     data['X'] = data['X'].to(self.device)
-                    data['neighbor'] = data['neighbor'].to(self.device)
+                    data['neighbors'] = data['neighbors'].to(self.device)
                 losses = self.FE(data, self.loss_weights)
                 cost = self.weight_losses(losses)
                 # backpropogate and update model

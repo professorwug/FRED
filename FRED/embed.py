@@ -46,12 +46,12 @@ class ManifoldFlowEmbedder(torch.nn.Module):
             X_reconstructed = self.decoder(self.embedded_points)
             losses["reconstruction"] = self.MSE(X_reconstructed, data["X"])
         # Compute diffusion map loss
-        if loss_weights["diffusion map regularization"] != 0:
+        if loss_weights["distance regularization"] != 0:
             diffmap_loss = precomputed_distance_loss(
                 data["precomputed distances"], self.embedded_points
             )
             #           diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
-            losses["diffusion map regularization"] = diffmap_loss
+            losses["distance regularization"] = diffmap_loss
 
         # Compute flow neighbor loss
         if loss_weights["flow neighbor loss"] != 0:
@@ -93,7 +93,7 @@ class ManifoldFlowEmbedder(torch.nn.Module):
             losses['kld'] = kl_divergence_loss(P, data["P"])
 
         if loss_weights["contrastive loss"] != 0:
-            losses['contrastive loss'] = contrastive_flow_loss_V2(self.embedded_points, self.embedded_flows, data["neighbor"])
+            losses['contrastive loss'] = contrastive_flow_loss_V2(self.embedded_points, self.embedded_flows, data["neighbors"])
 
         return losses
 

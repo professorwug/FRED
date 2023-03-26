@@ -37,5 +37,5 @@ def specific_scheduler(Dictionary loss_weights, int epoch):
     loss_weights = sigmoid_scheduler(loss_weights, loss_name="smoothness", epoch, total_epochs=10, c=1, function_type="sigmoid")
     # change parameters manually, however you'd like:
     # loss_weights = sigmoid_scheduler(loss_weights, loss_name="flow neighbor loss", epoch, total_epochs=20, c=5, function_type="off")
-    # loss_weights = sigmoid_scheduler(loss_weights, loss_name="diffusion map regularization", epoch, total_epochs=20, c=1, function_type="off")
+    # loss_weights = sigmoid_scheduler(loss_weights, loss_name="distance regularization", epoch, total_epochs=20, c=1, function_type="off")
     return loss_weights

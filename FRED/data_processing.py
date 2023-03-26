@@ -486,6 +486,7 @@ class ManifoldWithVectorField(Dataset):
                 self.precomputed_distances.detach()
             )  # no need to have gradients from this operation
         elif prior_embedding == "UMAP":
+            print("Computing UMAP")
             reducer = umap.UMAP()
             self.umap_coords = torch.tensor(reducer.fit_transform(self.X))
             self.precomputed_distances = torch.cdist(self.umap_coords, self.umap_coords)
