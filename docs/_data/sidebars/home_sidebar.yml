@@ -43,8 +43,11 @@ entries:
       title: 01a02d Sphere and Torus Toy Xsets
       url: 01a02d Sphere and Torus Toy Datasets.html
     - output: web,pdf
+      title: 01a02e Flow Critical Datasets
+      url: 01a02e Flow Critical Datasets.html
+    - output: web,pdf
       title: Title
-      url: 04d FRED without Trainer.html
+      url: 04e Embeddings of scRNA Velocity Data.html
     - output: web,pdf
       title: 01b02 RNA Velocity Data
       url: 01b02 Single-Cell Data and RNA Velocity.html
@@ -69,6 +72,9 @@ entries:
     - output: web,pdf
       title: 02d Flow Datasets
       url: 02d Flow Datasets.html
+    - output: web,pdf
+      title: 'EEEMD: Edge-to-Edge Earth Mover''s Distance'
+      url: 02e Edge to Edge Earth Mover's Distance (EEEMD).html
     - output: web,pdf
       title: 03 Embedder
       url: 03 Embedder.html
@@ -97,6 +103,9 @@ entries:
       title: 03c04 KL Divergence
       url: 03c04 KL Divergence.html
     - output: web,pdf
+      title: Flashlight Loss
+      url: 03c05 Flashlight Loss.html
+    - output: web,pdf
       title: 03e Flow Prediction Network
       url: 03d Flow Prediction Embedder.html
     - output: web,pdf
@@ -119,7 +128,7 @@ entries:
       url: 04c Flavors of FRED.html
     - output: web,pdf
       title: '04c01 Trainer: Flow Neighbor Loss and Diffusion Map Regularization'
-      url: 04c01 Flow Neighbor Loss and Diffusion Map Regularization.html
+      url: 04c04 Flow Neighbor Loss and Diffusion Map Regularization On RNA Velocity.html
     - output: web,pdf
       title: '04c02 Trainer: Flow Neighbor Loss and Diffusion Map Regularization on
         Spiral'
@@ -137,6 +146,45 @@ entries:
     - output: web,pdf
       title: 05b Toy Dataset Benchmarker
       url: 05b Toy Dataset Benchmarker.html
+    - output: web,pdf
+      title: Comprehensive Double Helix Benchmarks on FRED
+      url: 05b01 Double Helix Results.html
+    - output: web,pdf
+      title: 05c Single Cell Dataset Benchmarker
+      url: 05g Single Cell Dataset Benchmarker with UMAP base.html
+    - output: web,pdf
+      title: Comprehensive Single Cell Results with FRED
+      url: 05g01 Results with FRED on Single Cell Datasets with UMAP.html
+    - output: web,pdf
+      title: Comprehensive Bone Marrow Results with FRED
+      url: 05c02 Results on Denta.html
+    - output: web,pdf
+      title: 05d01 UW Method on Single Cell Datasets
+      url: 05d01a UW Comparisons.html
+    - output: web,pdf
+      title: Comprehensive UW Comparisons on Single Cell Datasets
+      url: 05d01a UW Tests.html
+    - output: web,pdf
+      title: 05d01 PHATE on Single Cell Datasets
+      url: 05d02 PHATE Comparison on sc.html
+    - output: web,pdf
+      title: Comprehensive PHATE Comparisons on Single Cell Datasets
+      url: 05d02a PHATE tests.html
+    - output: web,pdf
+      title: 05d01 scVelo on Single Cell Datasets
+      url: 05d03 scvelo embeddings of sc.html
+    - output: web,pdf
+      title: Comprehensive Single Cell Results with scVelo
+      url: 05d03a Results with scvelo.html
+    - output: web,pdf
+      title: 05e Integrating along the Flow Lines
+      url: 05e Integrating along the Flow Lines.html
+    - output: web,pdf
+      title: 05e01 Inference via Integration Tests on Single Cell Data
+      url: 05e01 sc inference via integration.html
+    - output: web,pdf
+      title: Flow Neighbor Metric
+      url: 05f Metrics for Benchmarking.html
     output: web
     title: FRED
   output: web
