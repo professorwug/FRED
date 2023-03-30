@@ -6,7 +6,7 @@ __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset', 'a
            'anisotropic_kernel', 'adaptive_anisotropic_kernel', 'zero_negligible_thresholds', 'diffusion_matrix',
            'diffusion_matrix_from_points', 'diffusion_coordinates', 'diffusion_map_from_points',
            'diffusion_map_from_affinities', 'plot_3d', 'flow_neighbors', 'ManifoldWithVectorField',
-           'ManifoldWithVectorFieldV2', 'dataloader_from_ndarray']
+           'ManifoldWithVectorFieldV2', 'FRED_collate', 'dataloader_from_ndarray', 'dataloader_from_ndarray_V2']
 
 # Cell
 import torch
@@ -680,18 +680,47 @@ class ManifoldWithVectorFieldV2(Dataset):
         # Get actual points
         X_batch = self.X[minibatch_idxs]
         # Get subset of distances; only store distances from idx to other points
-        mini_precomputed_distances = self.precomputed_distances[minibatch_idxs][:,minibatch_idxs][0]
+        mini_precomputed_distances = self.precomputed_distances[minibatch_idxs][:,minibatch_idxs][0][1:] # we don't care about the self distance of 0
         # Embed these into a dictionary for easy cross reference
         return_dict = {
             "X":X_batch,
-            "precomputed distances": mini_precomputed_distances,
+            "distance to neighbors": mini_precomputed_distances[0],
+            "distance to farbors": mini_precomputed_distances[1],
             "labels":self.labels[minibatch_idxs],
         }
         return return_dict
+
+# Cell
+from torch.utils.data import default_collate
+def FRED_collate(batch):
+    # Compile into a dictionary of nested lists
+    batch = default_collate(batch)
+    # Combine these lists
+    num_points = batch['X'].shape[0]*batch['X'].shape[1]
+    data_dimension = batch['X'].shape[-1]
+    batch['X'] = batch['X'].reshape(num_points,data_dimension)
+    batch['labels'] = batch['labels'].reshape(num_points)
+    # compile indices to neighbors and farbors
+    center_point_idxs = torch.arange(0,len(batch['X']),step=3)
+    neighbor_idxs = center_point_idxs + 1
+    farbors_idxs = center_point_idxs + 2
+    # add these to the batch
+    batch['center point idxs'] = center_point_idxs.long()
+    batch['neighbor idxs'] = neighbor_idxs.long()
+    batch['farbor idxs'] = farbors_idxs.long()
+    # TODO: Shuffle order of points
+    return batch
 
 # Cell
 from torch.utils.data import DataLoader
 def dataloader_from_ndarray(X, flow, labels):
     ds = ManifoldWithVectorField(X, flow, labels)
     dataloader = DataLoader(ds, batch_size=None, shuffle=True)
+    return dataloader
+
+# Cell
+from torch.utils.data import DataLoader
+def dataloader_from_ndarray_V2(X, flow, labels, batch_size = 32):
+    ds = ManifoldWithVectorFieldV2(X, flow, labels)
+    dataloader = DataLoader(ds, batch_size=batch_size, shuffle=True, collate_fn=FRED_collate)
     return dataloader

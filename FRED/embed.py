@@ -10,7 +10,6 @@ import torch
 import torch.nn as nn
 from .data_processing import affinity_matrix_from_pointset_to_pointset
 
-
 class ManifoldFlowEmbedder(torch.nn.Module):
     def __init__(
         self,
@@ -42,19 +41,29 @@ class ManifoldFlowEmbedder(torch.nn.Module):
     def loss(self, data, loss_weights):
         # compute autoencoder loss
         losses = {}
-        if loss_weights["reconstruction"] != 0:
+        if "reconstruction" in loss_weights and loss_weights["reconstruction"] != 0:
             X_reconstructed = self.decoder(self.embedded_points)
             losses["reconstruction"] = self.MSE(X_reconstructed, data["X"])
+
         # Compute diffusion map loss
-        if loss_weights["distance regularization"] != 0:
+        if "distance regularization" in loss_weights and loss_weights["distance regularization"] != 0:
             diffmap_loss = precomputed_distance_loss(
                 data["precomputed distances"], self.embedded_points
             )
             #           diffmap_loss = diffusion_map_loss(self.P_graph_ts[0], self.embedded_points)
             losses["distance regularization"] = diffmap_loss
-
+        if "distance regularization v2" in loss_weights and loss_weights["distance regularization v2"] != 0:
+            loss = precomputed_distance_lossV2(
+                embedded_points=self.embedded_points,
+                near_distances_precomputed=data['distance to neighbors'],
+                far_distances_precomputed=data['distance to farbors'],
+                center_point_idxs=data['center point idxs'],
+                neighbor_idxs=data['neighbor idxs'],
+                farbor_idxs=data['farbor idxs'],
+            )
+            losses["distance regularization v2"] = loss
         # Compute flow neighbor loss
-        if loss_weights["flow neighbor loss"] != 0:
+        if "flow neighbor loss" in loss_weights and loss_weights["flow neighbor loss"] != 0:
             neighbor_loss = flow_neighbor_loss(
                 data["neighbors"],
                 self.embedded_points,
@@ -63,7 +72,7 @@ class ManifoldFlowEmbedder(torch.nn.Module):
             losses["flow neighbor loss"] = neighbor_loss
 
         # Computes negative sampling loss
-        if loss_weights["contrastive flow loss"] != 0:
+        if "contrastive flow loss" in loss_weights and loss_weights["contrastive flow loss"] != 0:
             # sample random points from the realm outside of the flow neighbors
             row = torch.zeros(self.num_negative_samples).long()
             negative_sample_idxs = torch.randint(data["num flow neighbors"],len(self.embedded_points),(1,self.num_negative_samples))[0]
@@ -77,7 +86,7 @@ class ManifoldFlowEmbedder(torch.nn.Module):
             losses["contrastive flow loss"] = loss
 
         # Compute smoothness regularization
-        if loss_weights["smoothness"] != 0:
+        if "smoothness" in loss_weights and loss_weights["smoothness"] != 0:
             smoothness_loss = smoothness_of_vector_field(
                 self.embedded_points,
                 self.flowArtist,
@@ -87,13 +96,13 @@ class ManifoldFlowEmbedder(torch.nn.Module):
             )
             losses["smoothness"] = smoothness_loss
 
-        if loss_weights["kld"] != 0:
+        if "kld" in loss_weights and loss_weights["kld"] != 0:
             A = affinity_matrix_from_pointset_to_pointset(self.embedded_points, self.embedded_points, self.embedded_flows, sigma=0.5, flow_strength=1)
             P = torch.nn.functional.normalize(A, p=1, dim=1)
             losses['kld'] = kl_divergence_loss(P, data["P"])
 
-        if loss_weights["contrastive loss"] != 0:
-            losses['contrastive loss'] = contrastive_flow_loss_V2(self.embedded_points, self.embedded_flows, data["neighbors"])
+        if "contrastive loss v2" in loss_weights and loss_weights["contrastive loss v2"] != 0:
+            losses['contrastive loss v2'] = contrastive_flow_loss_V2(self.embedded_points, self.embedded_flows, center_point_idxs = data["center point idxs"], neighbor_idxs = data["neighbor idxs"])
 
         return losses
 
@@ -225,12 +234,14 @@ def precomputed_distance_loss(precomputed_distances, embedded_points):
 
 # Cell
 import torch
-def precomputed_distance_lossV2(precomputed_distances, embedded_points):
-    D_graph = precomputed_distances
-    num_nodes = embedded_points.shape[0]
-    D_embedding = torch.cdist(embedded_points[:len(precomputed_distances)], embedded_points[len(precomputed_distances):])
-    loss = torch.norm(D_graph - D_embedding)**2 / (num_nodes**2)
-    return loss
+def precomputed_distance_lossV2(embedded_points, near_distances_precomputed, far_distances_precomputed, center_point_idxs, neighbor_idxs, farbor_idxs):
+    # compute near distance loss
+    near_dists_embedded = torch.linalg.vector_norm(embedded_points[center_point_idxs] - embedded_points[neighbor_idxs])
+    near_dist_loss = torch.linalg.vector_norm(near_dists_embedded - near_distances_precomputed)
+    # ditto for far distances
+    far_dists_embedded = torch.linalg.vector_norm(embedded_points[center_point_idxs] - embedded_points[farbor_idxs])
+    far_dist_loss = torch.linalg.vector_norm(far_dists_embedded - far_distances_precomputed)
+    return near_dist_loss + far_dist_loss
 
 # Cell
 def flow_neighbor_loss(neighbors, embedded_points, embedded_flows):
@@ -255,22 +266,18 @@ from torch.nn.functional import cross_entropy
 def contrastive_flow_loss_V2(
         embedded_points, # a batch of embedded points
         embedded_flows, # the flows associated to each embedded point
-        neighbors, # a list of size batch_size/2, mapping point i in the batch to its neighbor in the batch, neighbor[i]
-        use_distance_kernel = False,
-        debug = False,
-        only_optimize_flow_artist = True,
+        center_point_idxs,
+        neighbor_idxs, # a list of size batch_size/2, mapping point i in the batch to its neighbor in the batch, neighbor[i]
+        use_distance_kernel = True,
         ): # Could be a list of positive indices
-    # embedded_points = embedded_points.detach()
-    if use_distance_kernel:
+    if use_distance_kernel: # best for high-dimensional embeddings; doesn't work in 2d
         A = flashlight_kernel(embedded_points,embedded_flows,kernel_type='fixed',sigma=0.7)
-        # A = affinity_matrix_from_pointset_to_pointset(embedded_points, embedded_points, embedded_flows, sigma=0.7, flow_strength=5)
     else:
         A = flashlight_cosine_similarity(embedded_points, embedded_flows) # produces matrix of affinities
-    loss = cross_entropy(A,neighbors)
-    if not debug:
-        return loss
-    else:
-        return loss, A
+    # get rows of A corresponding to each center point
+    affinity_predictions = A[center_point_idxs]
+    loss = cross_entropy(affinity_predictions, neighbor_idxs)
+    return loss
 
 # Cell
 def anisotropic_kernel(D, sigma=0.7, alpha = 1):

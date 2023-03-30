@@ -68,9 +68,15 @@ class Trainer(object):
                     data['distance'] = data["distance"].float().to(self.device)
                 elif self.data_type == "Contrastive Flow":
                     data['X'] = data['X'].float().to(self.device)
-                    data['neighbors'] = data['neighbors'].float().to(self.device)
+                    data['distance to neighbors'] = data['distance to neighbors'].float().to(self.device)
+                    data['distance to farbors'] = data['distance to farbors'].float().to(self.device)
+                    data['center point idxs'] = data['center point idxs'].to(self.device)
+                    data['neighbor idxs'] = data['neighbor idxs'].to(self.device)
+                    data['farbor idxs'] = data['farbor idxs'].to(self.device)
+                    data['X'] = data['X'].float().to(self.device)
                 losses = self.FE(data, self.loss_weights)
                 cost = self.weight_losses(losses)
+                # print(f"{cost=} {losses=}")
                 # backpropogate and update model
                 cost.backward()
                 self.optim.step()
