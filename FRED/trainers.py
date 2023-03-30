@@ -58,17 +58,17 @@ class Trainer(object):
                     self.loss_weights = self.scheduler(self.loss_weights)
                 # have model compute losses, compile them into cost using loss weights
                 if self.data_type == "Flow Neighbor":
-                    data['X'] = data['X'].to(self.device)
-                    data['neighbors'] = data['neighbors'].to(self.device)
+                    data['X'] = data['X'].float().to(self.device) # We convert to float32s for compatibility with apple mps
+                    data['neighbors'] = data['neighbors'].float().to(self.device)
                     # data['P'] = data['P'].to(self.device)
-                    data['precomputed distances'] = data['precomputed distances'].to(self.device)
+                    data['precomputed distances'] = data['precomputed distances'].float().to(self.device)
                 elif self.data_type == "Flow Prediction":
-                    data['X'] = data['X'].to(self.device)
-                    data['transition_to'] = data['transition_to'].to(self.device)
-                    data['distance'] = data["distance"].to(self.device)
+                    data['X'] = data['X'].float().to(self.device)
+                    data['transition_to'] = data['transition_to'].float().to(self.device)
+                    data['distance'] = data["distance"].float().to(self.device)
                 elif self.data_type == "Contrastive Flow":
-                    data['X'] = data['X'].to(self.device)
-                    data['neighbors'] = data['neighbors'].to(self.device)
+                    data['X'] = data['X'].float().to(self.device)
+                    data['neighbors'] = data['neighbors'].float().to(self.device)
                 losses = self.FE(data, self.loss_weights)
                 cost = self.weight_losses(losses)
                 # backpropogate and update model

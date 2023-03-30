@@ -6,7 +6,7 @@ __all__ = ['affinity_from_flow', 'affinity_matrix_from_pointset_to_pointset', 'a
            'anisotropic_kernel', 'adaptive_anisotropic_kernel', 'zero_negligible_thresholds', 'diffusion_matrix',
            'diffusion_matrix_from_points', 'diffusion_coordinates', 'diffusion_map_from_points',
            'diffusion_map_from_affinities', 'plot_3d', 'flow_neighbors', 'ManifoldWithVectorField',
-           'dataloader_from_ndarray']
+           'ManifoldWithVectorFieldV2', 'dataloader_from_ndarray']
 
 # Cell
 import torch
@@ -559,6 +559,133 @@ class ManifoldWithVectorField(Dataset):
             "num flow neighbors":self.n_neighbors,
             "precomputed distances":self.precomputed_distances,
             "neighbors": self.neighborhood,
+        }
+        return return_dict
+
+# Cell
+import torch
+from torch.utils.data import Dataset
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import numpy as np
+# used for precomputed a manifold embedding
+import umap
+import phate
+from sklearn.neighbors import NearestNeighbors
+# other functions from FRED, for computing flashlight affinities
+from .data_processing import flashlight_kernel, diffusion_map_from_affinities
+
+class ManifoldWithVectorFieldV2(Dataset):
+    """
+    Dataset object to be used with FRED for pointcloud and velocity input data.
+    Takes np.arrays for X (points) and velocities (velocity vectors per point).
+    For each item retrieved, returns a neighborhood around that point (based on local euclidean neighbors) containing local affinities
+
+    """
+    def __init__(self,
+        X, # The input pointcloud
+        velocities, # input velocities associated to each point
+        labels,
+        sigma="automatic",
+        flow_strength = 1,
+        prior_embedding = "diffusion map",
+        directed_diffusion_time_steps = 8,
+        t_dmap = 1, # when sampling flow neighbors, consider this power of diffusion
+        dmap_coords_to_use = 2,
+        phate_decay = 40,
+        n_neighbors = 5,
+        minibatch_size = 100,
+        nbhd_strategy = "flow neighbors",
+        verbose = False,
+        ):
+        # Step 0: Convert data into tensors; and send to floats, for compatibility with apple MPS
+        self.X = torch.tensor(X).float()
+        self.velocities = torch.tensor(velocities).float()
+        self.labels = labels
+        self.n_neighbors = n_neighbors
+        self.nbhd_strategy = nbhd_strategy
+        self.n_nodes = self.X.shape[0]
+        self.minibatch_size = minibatch_size
+
+        # Step 1. Build graph on input data, using flashlight kernel
+        if verbose: print("Building flow affinity matrix")
+
+        self.A = flashlight_kernel(self.X, self.velocities, kernel_type="adaptive anisotropic", k = n_neighbors,sigma=sigma, flow_strength=flow_strength)
+        self.P_graph = F.normalize(self.A, p=1, dim=1)
+        self.P_t = torch.linalg.matrix_power(self.P_graph,directed_diffusion_time_steps)
+        # visualize affinity matrix, as a sanity check
+        plt.imshow(self.A.numpy())
+
+        # Step 2. Precompute an embedding of the data using a purely manifold-based technique
+        # These will become our 'precomputed distances' which we use to regularize the embedding
+        match prior_embedding:
+            case "diffusion map":
+                self.P_graph_symmetrized = self.P_graph + self.P_graph.T
+                diff_map = diffusion_map_from_affinities(
+                    self.P_graph_symmetrized, t=t_dmap, plot_evals=False
+                )
+                self.diff_coords = diff_map[:, :dmap_coords_to_use]
+                self.diff_coords = self.diff_coords.real
+                self.diff_coords = torch.tensor(self.diff_coords.copy()).float()
+                self.precomputed_distances = torch.cdist(self.diff_coords, self.diff_coords)
+                # scale distances between 0 and 1
+                self.precomputed_distances = 2 * (
+                    self.precomputed_distances / torch.max(self.precomputed_distances)
+                )
+                self.precomputed_distances = (
+                    self.precomputed_distances.detach()
+                )  # no need to have gradients from this operation
+            case "UMAP":
+                print("Computing UMAP")
+                reducer = umap.UMAP()
+                self.umap_coords = torch.tensor(reducer.fit_transform(self.X))
+                self.precomputed_distances = torch.cdist(self.umap_coords, self.umap_coords).detach()
+            case "PHATE":
+                print(f"Computing PHATE with {phate_decay=} and {self.n_neighbors=}")
+                print("X is",self.X)
+                phate_op = phate.PHATE() #n_components = 2, decay=phate_decay, knn=self.n_neighbors
+                self.phate_coords = phate_op.fit_transform(self.X)
+                phate.plot.scatter2d(self.phate_coords, c=labels)
+                self.phate_coords = torch.tensor(self.phate_coords)
+                self.precomputed_distances = torch.cdist(self.phate_coords, self.phate_coords).detach()
+            case _:
+                raise NotImplementedError("Prior embedding must be either 'diffusion map' or 'UMAP'")
+        # scale distances to have max dist 1, so that the same loss weights apply equally to all cases
+        self.precomputed_distances = self.precomputed_distances/torch.max(self.precomputed_distances)
+
+    def neighbor_from_point(self, idx:int) -> int:
+        # Samples a flow neighbor from the t-step diffusion around the point idx, according
+        # to the diffusion probabilities
+        probs_from_idx = self.P_t[idx]
+        # remove self-affinity and renormalize
+        probs_from_idx[idx] = 0
+        probs_from_idx = probs_from_idx / torch.sum(probs_from_idx)
+        # Sample from the set of points according to this distribution
+        sampled_idx = int(np.random.choice(np.arange(self.n_nodes), size = 1, p=probs_from_idx.numpy()))
+        return sampled_idx
+
+    def __len__(self):
+        return self.n_nodes
+
+    def __getitem__(self, idx):
+        """
+        Each item contains the central point *idx*, followed by a flow neighbor of that point, followed by a random point.
+        The distances from the central point to the neighbor and random point are computed and stored.
+        """
+        # Get the neighborhood around the central point, as a set of pairs of points
+        nbhr_idx = self.neighbor_from_point(idx)
+        # And sample random points -- for negative sampling loss
+        random_idx = int(np.random.choice(np.arange(self.n_nodes), size=1))
+        minibatch_idxs = [idx, nbhr_idx, random_idx]
+        # Get actual points
+        X_batch = self.X[minibatch_idxs]
+        # Get subset of distances; only store distances from idx to other points
+        mini_precomputed_distances = self.precomputed_distances[minibatch_idxs][:,minibatch_idxs][0]
+        # Embed these into a dictionary for easy cross reference
+        return_dict = {
+            "X":X_batch,
+            "precomputed distances": mini_precomputed_distances,
+            "labels":self.labels[minibatch_idxs],
         }
         return return_dict
 
