@@ -149,3 +149,7 @@ datasets/
 datasets/email_Eu_network
 data/
 cache/
+embeddings/
+
+# papermill raw notebooks
+papermilled/
