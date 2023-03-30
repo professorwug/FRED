@@ -46,7 +46,7 @@ def nn_classification_metric(embedded_points, embedded_velocities, labels):
 # Cell
 from .inference import diffusion_flow_integration
 from tqdm.notebook import trange, tqdm
-def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 1000, flow_strength=5):
+def monotone_increasing_metric(embedded_points, embedded_velocities, time_labels, num_samples = 100, flow_strength=5):
     # sample random starting points
     idxs = torch.randint(len(embedded_points), size=[num_samples])
     neg_diffs = 0

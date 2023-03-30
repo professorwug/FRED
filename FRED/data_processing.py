@@ -440,6 +440,7 @@ from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 import numpy as np
 import umap
+import phate
 from sklearn.neighbors import NearestNeighbors
 import torch.nn.functional as F
 from .data_processing import flashlight_affinity_matrix, diffusion_map_from_affinities, flow_neighbors
@@ -450,7 +451,7 @@ class ManifoldWithVectorField(Dataset):
     For each item retrieved, returns a neighborhood around that point (based on local euclidean neighbors) containing local affinities
 
     """
-    def __init__(self, X, velocities, labels, sigma="automatic", flow_strength = 1, prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors", verbose = False):
+    def __init__(self, X, velocities, labels, sigma="automatic", flow_strength = 1, prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, phate_decay = 40, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors", verbose = False):
         # Step 0: Convert data into tensors
         self.X = torch.tensor(X).float()
         self.velocities = torch.tensor(velocities).float()
@@ -461,7 +462,7 @@ class ManifoldWithVectorField(Dataset):
         self.minibatch_size = minibatch_size
 
         # Step 1. Build graph on input data, using flashlight kernel
-        if verbose: print("Building flow affinitiy matrix")
+        if verbose: print("Building flow affinity matrix")
         self.A = flashlight_affinity_matrix(self.X, self.velocities, sigma = sigma, flow_strength = flow_strength)
         self.P_graph = F.normalize(self.A, p=1, dim=1)
         # visualize affinity matrix
@@ -489,9 +490,19 @@ class ManifoldWithVectorField(Dataset):
             print("Computing UMAP")
             reducer = umap.UMAP()
             self.umap_coords = torch.tensor(reducer.fit_transform(self.X))
-            self.precomputed_distances = torch.cdist(self.umap_coords, self.umap_coords)
+            self.precomputed_distances = torch.cdist(self.umap_coords, self.umap_coords).detach()
+        elif prior_embedding == "PHATE":
+            print(f"Computing PHATE with {phate_decay=} and {self.n_neighbors=}")
+            print("X is",self.X)
+            phate_op = phate.PHATE() #n_components = 2, decay=phate_decay, knn=self.n_neighbors
+            self.phate_coords = phate_op.fit_transform(self.X)
+            phate.plot.scatter2d(self.phate_coords, c=labels)
+            self.phate_coords = torch.tensor(self.phate_coords)
+            self.precomputed_distances = torch.cdist(self.phate_coords, self.phate_coords).detach()
         else:
             raise ValueError("Prior embedding must be either 'diffusion map' or 'UMAP'")
+        # scale to have max dist 1
+        self.precomputed_distances = self.precomputed_distances/torch.max(self.precomputed_distances)
         # Step 3: This returns a sparse representation of the flow neighborhoods, in the form of two tensors: row, col. The numbers in row specify the index, and the adjacent entries in col are the neighbors of that index.
         if nbhd_strategy == "flow neighbors":
             self.neighborhoods = flow_neighbors(self.n_nodes, self.P_graph, self.n_neighbors)
