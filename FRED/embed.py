@@ -241,7 +241,10 @@ def precomputed_distance_lossV2(embedded_points, near_distances_precomputed, far
     # ditto for far distances
     far_dists_embedded = torch.linalg.vector_norm(embedded_points[center_point_idxs] - embedded_points[farbor_idxs])
     far_dist_loss = torch.linalg.vector_norm(far_dists_embedded - far_distances_precomputed)
-    return near_dist_loss + far_dist_loss
+    combined_loss = far_dist_loss + near_dist_loss
+    # normalize by number of points
+    combined_loss /= (len(center_point_idxs))
+    return combined_loss
 
 # Cell
 def flow_neighbor_loss(neighbors, embedded_points, embedded_flows):
@@ -269,7 +272,10 @@ def contrastive_flow_loss_V2(
         center_point_idxs,
         neighbor_idxs, # a list of size batch_size/2, mapping point i in the batch to its neighbor in the batch, neighbor[i]
         use_distance_kernel = True,
+        only_learn_flows = False,
         ): # Could be a list of positive indices
+    if only_learn_flows:
+        embedded_points = embedded_points.detach()
     if use_distance_kernel: # best for high-dimensional embeddings; doesn't work in 2d
         A = flashlight_kernel(embedded_points,embedded_flows,kernel_type='fixed',sigma=0.7)
     else:

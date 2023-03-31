@@ -38,9 +38,9 @@ class Trainer(object):
         self.title = title
         self.epochs_between_visualization = 10
         self.timestamp = datetime.datetime.now().isoformat().replace(":",".")
-        if not os.path.exists("visualizations"):
-            os.mkdir("visualizations")
-        os.mkdir(f"visualizations/{self.timestamp}")
+        if not os.path.exists("../../visualizations"):
+            os.mkdir("../../visualizations")
+        os.mkdir(f"../../visualizations/{self.timestamp}")
         self.optim = torch.optim.Adam(self.FE.parameters(), lr = learning_rate)
         self.scheduler = scheduler
         self.device = device
@@ -51,11 +51,11 @@ class Trainer(object):
         self.labels = dataloader.dataset.labels
         self.X = dataloader.dataset.X
         for epoch_num in trange(n_epochs):
+            # update loss weights according to scheduling
+            if self.scheduler is not None:
+                self.loss_weights = self.scheduler(self.loss_weights)
             for data in self.dataloader:
                 self.optim.zero_grad()
-                # update loss weights according to scheduling
-                if self.scheduler is not None:
-                    self.loss_weights = self.scheduler(self.loss_weights)
                 # have model compute losses, compile them into cost using loss weights
                 if self.data_type == "Flow Neighbor":
                     data['X'] = data['X'].float().to(self.device) # We convert to float32s for compatibility with apple mps
@@ -74,6 +74,7 @@ class Trainer(object):
                     data['neighbor idxs'] = data['neighbor idxs'].to(self.device)
                     data['farbor idxs'] = data['farbor idxs'].to(self.device)
                     data['X'] = data['X'].float().to(self.device)
+                    data['precomputed distances'] = data['precomputed distances'].to(self.device)
                 losses = self.FE(data, self.loss_weights)
                 cost = self.weight_losses(losses)
                 # print(f"{cost=} {losses=}")
@@ -90,7 +91,6 @@ class Trainer(object):
                 emb_X = self.FE.embedder(self.X.to(self.device))
                 flowArtist = self.FE.flowArtist
                 self.visualize(emb_X, flowArtist, self.losses, title)
-                print(losses)
         # Save most recent embedded points and flow artist for running visualizations
         self.embedded_points = self.FE.embedder(self.dataloader.dataset.X.to(self.device))
         self.flow_artist = flowArtist
@@ -112,15 +112,16 @@ class Trainer(object):
                 title=title,
                 labels=self.labels,
                 FE=self.FE,
+                device=self.device
             )
 
     def training_gif(self, duration=50):
-        file_names = glob.glob(f"visualizations/{self.timestamp}/*.jpg")
+        file_names = glob.glob(f"../../visualizations/{self.timestamp}/*.jpg")
         file_names.sort()
         frames = [Image.open(image) for image in file_names]
         frame_one = frames[0]
         frame_one.save(
-            f"visualizations/{self.timestamp}/{self.title}.gif",
+            f"../../visualizations/{self.timestamp}/{self.title}.gif",
             format="GIF",
             append_images=frames,
             save_all=True,
@@ -129,7 +130,7 @@ class Trainer(object):
         )
         # display in jupyter notebook
         b64 = base64.b64encode(
-            open(f"visualizations/{self.timestamp}/{self.title}.gif", "rb").read()
+            open(f"../../visualizations/{self.timestamp}/{self.title}.gif", "rb").read()
         ).decode("ascii")
         display(widgets.HTML(f'<img src="data:image/gif;base64,{b64}" />'))
 
@@ -227,7 +228,7 @@ def visualize_points(
         plt.quiver(x, y, u, v)
         # Display all open figures.
         if save:
-            plt.savefig(f"visualizations/{title}.jpg")
+            plt.savefig(f"../../visualizations/{title}.jpg")
         else:
             plt.show()
         plt.close()

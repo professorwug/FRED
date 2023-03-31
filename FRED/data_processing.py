@@ -124,7 +124,9 @@ def flashlight_affinity_matrix(X, flow, k=10, sigma="automatic",flow_strength= 1
     return A
 
 # Cell
-def directions_array_from(X):
+def directions_array_from(
+        X:torch.Tensor
+        )->torch.Tensor:
     """Given n x d tensor X, returns n x n tensor where entry i,j is x_j - x_i. Useful for getting a distance matrix."""
     n1 = X.shape[0]
     P2 = X[:, :, None].repeat(1, 1, n1)
@@ -186,14 +188,19 @@ def adaptive_anisotropic_kernel(D, k=10, alpha = 1):
     return W
 
 # Cell
-def flashlight_kernel(X, flows, kernel_type = "adaptive anisotropic", k=10, sigma = 0.7, anisotropic_density_normalization = 1, flow_strength=1):
+def flashlight_kernel(
+        X:torch.Tensor,
+        flows:torch.Tensor,
+        kernel_type:str = "adaptive anisotropic",
+        k:int=10,
+        sigma:float = 0.7,
+        anisotropic_density_normalization = 1,
+        flow_strength=1
+    ):
     """A distance aware adaptation of the flashlight cosine similarity,
     obtained by multiplying the cosine similarity by a traditional guassian kernel.
     This is not intended to be differentiable, although is with some choices of kernels (anisotropic, plain).
     """
-    # send data to tensors
-    X = torch.tensor(X)
-    flows = torch.tensor(flows)
     # Get flashlight cosine
     DA = directions_array_from(X)
     W_cosine = flashlight_cosine_similarity(X, flows, directions_array=DA)
@@ -209,8 +216,6 @@ def flashlight_kernel(X, flows, kernel_type = "adaptive anisotropic", k=10, sigm
         W = torch.tensor(W_np)
     if kernel_type == "fixed":
         W = torch.exp(-D/(sigma**2))
-        W = W.fill_diagonal_(0)
-    # W = W.detach()
     flashlight_K = W * ((W_strengthened_cosine+1)/2)
     return flashlight_K
 
@@ -624,10 +629,10 @@ class ManifoldWithVectorFieldV2(Dataset):
                 diff_map = diffusion_map_from_affinities(
                     self.P_graph_symmetrized, t=t_dmap, plot_evals=False
                 )
-                self.diff_coords = diff_map[:, :dmap_coords_to_use]
-                self.diff_coords = self.diff_coords.real
-                self.diff_coords = torch.tensor(self.diff_coords.copy()).float()
-                self.precomputed_distances = torch.cdist(self.diff_coords, self.diff_coords)
+                self.base_embedding = diff_map[:, :dmap_coords_to_use]
+                self.base_embedding = self.base_embedding.real
+                self.base_embedding = torch.tensor(self.base_embedding.copy()).float()
+                self.precomputed_distances = torch.cdist(self.base_embedding, self.base_embedding)
                 # scale distances between 0 and 1
                 self.precomputed_distances = 2 * (
                     self.precomputed_distances / torch.max(self.precomputed_distances)
@@ -638,16 +643,16 @@ class ManifoldWithVectorFieldV2(Dataset):
             case "UMAP":
                 print("Computing UMAP")
                 reducer = umap.UMAP()
-                self.umap_coords = torch.tensor(reducer.fit_transform(self.X))
-                self.precomputed_distances = torch.cdist(self.umap_coords, self.umap_coords).detach()
+                self.base_embedding = torch.tensor(reducer.fit_transform(self.X))
+                self.precomputed_distances = torch.cdist(self.base_embedding, self.base_embedding).detach()
             case "PHATE":
                 print(f"Computing PHATE with {phate_decay=} and {self.n_neighbors=}")
                 print("X is",self.X)
                 phate_op = phate.PHATE() #n_components = 2, decay=phate_decay, knn=self.n_neighbors
-                self.phate_coords = phate_op.fit_transform(self.X)
-                phate.plot.scatter2d(self.phate_coords, c=labels)
-                self.phate_coords = torch.tensor(self.phate_coords)
-                self.precomputed_distances = torch.cdist(self.phate_coords, self.phate_coords).detach()
+                self.base_embedding = phate_op.fit_transform(self.X)
+                phate.plot.scatter2d(self.base_embedding, c=labels)
+                self.base_embedding = torch.tensor(self.base_embedding)
+                self.precomputed_distances = torch.cdist(self.base_embedding, self.base_embedding).detach()
             case _:
                 raise NotImplementedError("Prior embedding must be either 'diffusion map' or 'UMAP'")
         # scale distances to have max dist 1, so that the same loss weights apply equally to all cases
@@ -687,12 +692,13 @@ class ManifoldWithVectorFieldV2(Dataset):
             "distance to neighbors": mini_precomputed_distances[0],
             "distance to farbors": mini_precomputed_distances[1],
             "labels":self.labels[minibatch_idxs],
+            "idxs":torch.tensor(minibatch_idxs,dtype=torch.int),
         }
         return return_dict
 
 # Cell
 from torch.utils.data import default_collate
-def FRED_collate(batch):
+def FRED_collate(batch, precomputed_distances):
     # Compile into a dictionary of nested lists
     batch = default_collate(batch)
     # Combine these lists
@@ -700,6 +706,7 @@ def FRED_collate(batch):
     data_dimension = batch['X'].shape[-1]
     batch['X'] = batch['X'].reshape(num_points,data_dimension)
     batch['labels'] = batch['labels'].reshape(num_points)
+    batch['idxs'] = batch['idxs'].flatten().tolist()
     # compile indices to neighbors and farbors
     center_point_idxs = torch.arange(0,len(batch['X']),step=3)
     neighbor_idxs = center_point_idxs + 1
@@ -708,6 +715,8 @@ def FRED_collate(batch):
     batch['center point idxs'] = center_point_idxs.long()
     batch['neighbor idxs'] = neighbor_idxs.long()
     batch['farbor idxs'] = farbors_idxs.long()
+    # precompute distances between base embedding coordinates
+    batch['precomputed distances'] = precomputed_distances[batch['idxs']][:,batch['idxs']]
     # TODO: Shuffle order of points
     return batch
 
@@ -720,7 +729,9 @@ def dataloader_from_ndarray(X, flow, labels):
 
 # Cell
 from torch.utils.data import DataLoader
+from functools import partial
 def dataloader_from_ndarray_V2(X, flow, labels, batch_size = 32):
     ds = ManifoldWithVectorFieldV2(X, flow, labels)
-    dataloader = DataLoader(ds, batch_size=batch_size, shuffle=True, collate_fn=FRED_collate)
+    FRED_collate_with_dists = partial(FRED_collate,precomputed_distances = ds.precomputed_distances)
+    dataloader = DataLoader(ds, batch_size=batch_size, shuffle=True, collate_fn=FRED_collate_with_dists)
     return dataloader
