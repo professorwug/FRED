@@ -456,7 +456,7 @@ class ManifoldWithVectorField(Dataset):
     For each item retrieved, returns a neighborhood around that point (based on local euclidean neighbors) containing local affinities
 
     """
-    def __init__(self, X, velocities, labels, sigma="automatic", flow_strength = 1, prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, phate_decay = 40, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors", verbose = False):
+    def __init__(self, X, velocities, labels, sigma="automatic", flow_strength = 1, prior_embedding = "diffusion map", t_dmap = 1, dmap_coords_to_use = 2, phate_decay = 40, n_neighbors = 5, minibatch_size = 100, nbhd_strategy = "flow neighbors", verbose = False, phate_gamma = 40, phate_knn = 5, phate_seed=42 ):
         # Step 0: Convert data into tensors
         self.X = torch.tensor(X).float()
         self.velocities = torch.tensor(velocities).float()
@@ -499,7 +499,7 @@ class ManifoldWithVectorField(Dataset):
         elif prior_embedding == "PHATE":
             print(f"Computing PHATE with {phate_decay=} and {self.n_neighbors=}")
             print("X is",self.X)
-            phate_op = phate.PHATE() #n_components = 2, decay=phate_decay, knn=self.n_neighbors
+            phate_op = phate.PHATE(gamma=phate_gamma, knn=phate_knn, random_state=phate_seed) #n_components = 2, decay=phate_decay, knn=self.n_neighbors
             self.phate_coords = phate_op.fit_transform(self.X)
             phate.plot.scatter2d(self.phate_coords, c=labels)
             self.phate_coords = torch.tensor(self.phate_coords)
@@ -602,6 +602,9 @@ class ManifoldWithVectorFieldV2(Dataset):
         minibatch_size = 100,
         nbhd_strategy = "flow neighbors",
         verbose = False,
+        phate_gamma = 1,
+        phate_knn = 5,
+        phate_seed=42
         ):
         # Step 0: Convert data into tensors; and send to floats, for compatibility with apple MPS
         self.X = torch.tensor(X).float()
@@ -648,7 +651,7 @@ class ManifoldWithVectorFieldV2(Dataset):
             case "PHATE":
                 print(f"Computing PHATE with {phate_decay=} and {self.n_neighbors=}")
                 print("X is",self.X)
-                phate_op = phate.PHATE() #n_components = 2, decay=phate_decay, knn=self.n_neighbors
+                phate_op = phate.PHATE(gamma=phate_gamma, knn=phate_knn, random_state=phate_seed) #n_components = 2, decay=phate_decay, knn=self.n_neighbors
                 self.base_embedding = phate_op.fit_transform(self.X)
                 phate.plot.scatter2d(self.base_embedding, c=labels)
                 self.base_embedding = torch.tensor(self.base_embedding)
@@ -661,7 +664,7 @@ class ManifoldWithVectorFieldV2(Dataset):
     def neighbor_from_point(self, idx:int) -> int:
         # Samples a flow neighbor from the t-step diffusion around the point idx, according
         # to the diffusion probabilities
-        probs_from_idx = self.P_t[idx]
+        probs_from_idx = torch.abs(self.P_t[idx])
         # remove self-affinity and renormalize
         probs_from_idx[idx] = 0
         probs_from_idx = probs_from_idx / torch.sum(probs_from_idx)
@@ -706,7 +709,8 @@ def FRED_collate(batch, precomputed_distances):
     data_dimension = batch['X'].shape[-1]
     batch['X'] = batch['X'].reshape(num_points,data_dimension)
     batch['labels'] = batch['labels'].reshape(num_points)
-    batch['idxs'] = batch['idxs'].flatten().tolist()
+    if 'idxs' in batch.keys():
+        batch['idxs'] = batch['idxs'].flatten().tolist()
     # compile indices to neighbors and farbors
     center_point_idxs = torch.arange(0,len(batch['X']),step=3)
     neighbor_idxs = center_point_idxs + 1

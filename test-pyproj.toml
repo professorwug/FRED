@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "fred"
+version = "0.1.0"
+description = "Flow Respecting Embeddings of Directed Graphs"
+authors = ["Professor Wug <dev@riddle.press>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = "^2.0.1"
+numpy = "^1.20.0"
+llvmlite = "^0.40.0"
+numba = "^0.57.0"
+scvelo = "^0.2.5"
+tqdm = "^4.65.0"
+matplotlib = "^3.7.1"
+phate = "^1.0.10"
+tadasets = "^0.0.4"
+seaborn = "^0.12.2"
+plotly = "^5.15.0"
+s-gd2 = "^1.8.1"
+
+[tool.poetry.group.dev.dependencies]
+nbdev = "1.2.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

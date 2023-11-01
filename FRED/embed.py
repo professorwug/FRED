@@ -171,7 +171,7 @@ from collections import OrderedDict
 def flow_artist(dim = 2, device = torch.device('cpu')):
     # Function to create tailored flow artist
 
-    shape = [dim,dim*2,dim*4,dim*4,dim*2,dim]
+    shape = [dim,dim*2,dim*4,dim*8, dim*8, dim*8, dim*8, dim*4,dim*2,dim]
 
     FA = nn.Sequential()
 

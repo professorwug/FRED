@@ -4,10 +4,11 @@ __all__ = ['xy_tilt', 'rotation_transform', 'add_noise', 'directed_circle', 'dir
            'directed_spiral_uniform', 'directed_spiral_delayed', 'generate_prism', 'directed_cylinder',
            'directed_swiss_roll', 'directed_swiss_roll_uniform', 'directed_swiss_roll_delayed',
            'directed_one_variable_function', 'directed_sine', 'directed_sine_ribbon', 'directed_sinh',
-           'directed_sinh_branch', 'directed_sine_moons', 'angle_x', 'whirlpool', 'rejection_sample_for_torus',
-           'directed_torus', 'directed_sphere', 'double_helix', 'rnavelo_find_cluster_key', 'rnavelo_add_labels',
-           'rnavelo_preprocess', 'rnavelo', 'rnavelo_pcs', 'rnavelo_plot_pca', 'plot_directed_2d', 'plot_origin_3d',
-           'plot_directed_3d', 'plot_3d', 'plot_2d', 'visualize_edge_index', 'display_galary', 'display_flow_galary']
+           'directed_sinh_branch', 'directed_sine_moons', 'line_with_discontinuities', 'angle_x', 'whirlpool',
+           'rejection_sample_for_torus', 'directed_torus', 'directed_sphere', 'double_helix',
+           'rnavelo_find_cluster_key', 'rnavelo_add_labels', 'rnavelo_preprocess', 'rnavelo', 'rnavelo_pcs',
+           'rnavelo_plot_pca', 'plot_directed_2d', 'plot_origin_3d', 'plot_directed_3d', 'plot_3d', 'plot_2d',
+           'visualize_edge_index', 'display_galary', 'display_flow_galary']
 
 # Cell
 # Tilt 2d plane into 3d space
@@ -581,6 +582,16 @@ def directed_sine_moons(num_nodes=500, xscale=1, yscale=1, xtilt=0, ytilt=0, sig
     X = np.concatenate((X_moon1, X_moon2))
     flows = np.concatenate((flows_moon1, flows_moon2))
     labels = np.concatenate((labels_moon1 - np.pi, labels_moon2))
+    return X, flows, labels
+
+# Cell
+def line_with_discontinuities(num_nodes = 1000, x_tilt = 0.3, y_tilt = 0.9):
+    X1 = np.vstack([np.linspace(-1,-0.001,num_nodes//2), np.zeros(num_nodes//2), np.zeros(num_nodes//2)]).T
+    X2 = np.vstack([np.linspace(0.001,1,num_nodes//2), np.zeros(num_nodes//2), np.zeros(num_nodes//2)]).T
+    X = np.vstack([X1,X2])
+    flows = np.vstack([1/np.sign(X[:,0]), np.zeros(len(X)), np.zeros(len(X))]).T
+    labels = np.concatenate([np.zeros(num_nodes//2),np.ones(num_nodes//2)])
+    X, flows = xy_tilt(X, flows, xtilt = x_tilt, ytilt = y_tilt)
     return X, flows, labels
 
 # Cell
